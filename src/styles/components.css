@@ -1119,10 +1119,10 @@
 /* ── Calls screen ──────────────────────────────────────────────────────────
    Takes the chat list's place in the sidebar; the header, search and filter
    tabs are the list's, so they step aside. */
-.sidebar--calls .sidebar-header,
-.sidebar--calls .sidebar-search,
-.sidebar--calls .sidebar-tags,
-.sidebar--calls .conversation-list {
+.sidebar--calls > .sidebar-header,
+.sidebar--calls > .sidebar-search,
+.sidebar--calls > .sidebar-tags,
+.sidebar--calls > .conversation-list {
   display: none;
 }
 
@@ -1563,45 +1563,17 @@
   position: relative;
 }
 
+/* The search slides open from the icon; the field inside is the list's own. */
 .calls-search {
-  padding: 0 16px 8px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease;
 }
 
-.calls-search-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 9px 14px;
-  border: none;
-  border-radius: 8px;
-  background: var(--WDS-warm-gray-75);
-  font: inherit;
-  color: var(--WDS-content-default);
-}
-
-.calls-filters {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 8px;
-  overflow-x: auto;
-}
-
-.calls-filter {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border: 1px solid var(--WDS-lines-outline-deemphasized);
-  border-radius: 999px;
-  background: var(--WDS-white);
-  color: var(--WDS-content-deemphasized);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.calls-filter.active {
-  border-color: transparent;
-  background: var(--WDS-green-100, #d9fdd3);
-  color: var(--WDS-green-700, #15803d);
-  font-weight: 500;
+.calls-search.open {
+  max-height: 64px;
+  opacity: 1;
 }
 
 .calls-empty {
@@ -1629,7 +1601,7 @@
    shrink to a sliver on a short desktop viewport). */
 .calls-header,
 .calls-search,
-.calls-filters,
+.calls-panel > .sidebar-tags,
 .calls-actions,
 .calls-recent {
   flex-shrink: 0;

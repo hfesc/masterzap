@@ -120,29 +120,34 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   header.appendChild(menuBtn);
   panel.appendChild(header);
 
-  // Search by name, and a row of chips — the same idea as the list's tags.
+  // Search by name and a row of chips — the list's own field and tags, the
+  // same classes, so they look the same. The field slides open from the icon
+  // and closes on the icon again.
   const searchRow = document.createElement('div');
   searchRow.className = 'calls-search';
-  searchRow.hidden = true;
+  searchRow.innerHTML = `<div class="sidebar-search"><div class="sidebar-search-wrapper"><span class="sidebar-search-icon">${ICON_SEARCH}</span></div></div>`;
   const input = document.createElement('input');
-  input.type = 'search';
-  input.className = 'calls-search-input';
+  input.type = 'text';
+  input.className = 'sidebar-search-input';
   input.placeholder = 'Pesquisar por nome';
   input.setAttribute('aria-label', 'Pesquisar chamadas por nome');
-  searchRow.appendChild(input);
+  searchRow.querySelector('.sidebar-search-wrapper').appendChild(input);
   panel.appendChild(searchRow);
+  searchBtn.setAttribute('aria-expanded', 'false');
   searchBtn.addEventListener('click', () => {
-    searchRow.hidden = !searchRow.hidden;
-    if (!searchRow.hidden) input.focus();
+    const open = !searchRow.classList.contains('open');
+    searchRow.classList.toggle('open', open);
+    searchBtn.setAttribute('aria-expanded', String(open));
+    if (open) input.focus();
     else { input.value = ''; render(); }
   });
 
   const chips = document.createElement('div');
-  chips.className = 'calls-filters';
+  chips.className = 'sidebar-tags';
   chips.setAttribute('role', 'tablist');
   for (const f of CALL_FILTERS) {
     const chip = document.createElement('button');
-    chip.className = `calls-filter${f.key === 'todas' ? ' active' : ''}`;
+    chip.className = `sidebar-tag${f.key === 'todas' ? ' active' : ''}`;
     chip.dataset.filter = f.key;
     chip.setAttribute('role', 'tab');
     chip.textContent = f.label;
