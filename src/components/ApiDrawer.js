@@ -22,9 +22,15 @@ const ICON_LINK = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" s
 const ICON_COPY = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 /** A block of text with a button that copies it. */
+const LANG_LABEL = { shell: 'bash', json: 'JSON', python: 'Python', r: 'R', text: 'txt' };
+
 function codeBlock(text, { onCopy, label = 'Copiar', inset = false, lang = 'text' } = {}) {
   const wrap = document.createElement('div');
   wrap.className = inset ? 'api-code inset' : 'api-code';
+  const strip = document.createElement('div');
+  strip.className = 'api-code-lang';
+  strip.textContent = LANG_LABEL[lang] || lang;
+  wrap.appendChild(strip);
   const pre = document.createElement('pre');
   // Escaped by highlight() before any span is added — safe innerHTML
   pre.innerHTML = highlight(text, lang);
@@ -118,7 +124,7 @@ export function showApiDrawer(container, { onClose, onCopy, section: wanted } = 
   sub.textContent = API_INTRO.sub;
   top.appendChild(sub);
   body.appendChild(top);
-  body.appendChild(codeBlock(MCP_URL, { onCopy, inset: true }));
+  body.appendChild(codeBlock(MCP_URL, { onCopy, inset: true, lang: 'text' }));
 
   const divider = document.createElement('div');
   divider.className = 'contact-info-divider';
@@ -215,7 +221,7 @@ export function showApiDrawer(container, { onClose, onCopy, section: wanted } = 
   intro.className = 'profile-section-text';
   intro.textContent = 'Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.';
   mcpEx.appendChild(intro);
-  for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy }));
+  for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy, lang: 'text' }));
   custom.appendChild(mcpEx);
 
   renderProfileSections(body, [], [], API_CREDITS, {});

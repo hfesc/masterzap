@@ -1371,8 +1371,8 @@
 
 .api-code pre {
   margin: 0;
-  padding: 12px 14px 40px;
-  font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 10px 14px 40px;
+  font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-content-default);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -1417,7 +1417,7 @@
 }
 
 .api-route-path {
-  font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 13.5px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-cobalt-400);
   overflow-wrap: anywhere;
 }
@@ -1439,7 +1439,7 @@
 
 .api-tools code {
   color: var(--WDS-content-default);
-  font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .api-limits {
@@ -1465,7 +1465,7 @@
   padding: 1px 6px;
   border-radius: 4px;
   background: var(--WDS-warm-gray-75);
-  font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-content-default);
   overflow-wrap: anywhere;
 }
@@ -1600,4 +1600,19 @@
   padding: 16px;
   color: var(--WDS-content-deemphasized);
   font-size: 14px;
+}
+
+/* The language of a snippet, on a strip at the top of the box. */
+.api-code-lang {
+  padding: 6px 14px 0;
+  font: 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--WDS-content-deemphasized);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Room between list items on the API page. */
+.api-tools li,
+.api-steps li {
+  margin-bottom: 8px;
 }

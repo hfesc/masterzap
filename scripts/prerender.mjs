@@ -335,7 +335,9 @@ ${JSON.stringify(jsonLd, null, 2)}
   ul.people li { margin: 6px 0; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid #d1d7db; }
-  pre { background: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  pre { position: relative; background: #fff; padding: 28px 12px 12px; border-radius: 8px; overflow-x: auto; font-size: 13.5px; }
+  pre[data-lang]::before { content: attr(data-lang); position: absolute; top: 6px; left: 12px; font: 11px/1 ui-monospace, monospace; color: #667781; text-transform: uppercase; letter-spacing: .04em; }
+  li { margin: 6px 0; }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 </style>
 </head>
@@ -410,6 +412,7 @@ function peopleIndex(people) {
 // ── /api: the same page, for whoever arrives without the app ──────────────
 
 function apiPage() {
+  const LANG = { shell: 'bash', json: 'JSON', python: 'Python', r: 'R', text: 'txt' };
   const body = [];
   body.push(`<h1>${escapeHtml(API_INTRO.title)}</h1>`, `<p class="role">${escapeHtml(API_INTRO.sub)}</p>`);
   body.push(`<p><b>MCP:</b> <code>${MCP_URL}</code></p>`);
@@ -425,10 +428,10 @@ function apiPage() {
   body.push('<h2 id="api-o-mcp">O MCP</h2>', '<ul>', ...MCP_TOOLS.map(([t, w]) => `<li><code>${t}</code> — ${escapeHtml(w)}</li>`), '</ul>');
   body.push(`<p><b>Limites por cliente:</b> ${MCP_LIMITS.perMinute}/min · ${MCP_LIMITS.perDay}/dia. Teto do site: ${MCP_LIMITS.globalPerDay.toLocaleString('pt-BR')}/dia. Ao passar: 429 com Retry-After.</p>`);
   for (const c of MCP_CLIENTS) {
-    body.push(`<h3 id="api-${slugOf('Como usar no ' + c.name)}">Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
+    body.push(`<h3 id="api-${slugOf('Como usar no ' + c.name)}">Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre data-lang="${LANG[c.lang] || 'txt'}"><code>${escapeHtml(c.code)}</code></pre>`);
   }
   body.push('<h2 id="api-exemplos-com-a-api">Exemplos com a API</h2>');
-  for (const ex of API_EXAMPLES) body.push(`<p><b>${escapeHtml(ex.title)}</b></p>`, `<pre><code>${escapeHtml(ex.code)}</code></pre>`);
+  for (const ex of API_EXAMPLES) body.push(`<p><b>${escapeHtml(ex.title)}</b></p>`, `<pre data-lang="${LANG[ex.lang] || 'txt'}"><code>${escapeHtml(ex.code)}</code></pre>`);
   body.push('<h2 id="api-exemplos-com-o-mcp">Exemplos com o MCP</h2>', '<p>Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.</p>', '<ul>', ...MCP_EXAMPLES.map(q => `<li>${escapeHtml(q)}</li>`), '</ul>');
   body.push(`<p class="how">${linksToHtml(API_CREDITS)}</p>`);
   const jsonLd = {

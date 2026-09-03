@@ -21,6 +21,15 @@ const RULES = {
     [/\b(true|false|null)\b/g, (m) => span('keyword', m)],
     [/(-?\b\d+(?:\.\d+)?\b)/g, (m) => span('number', m)],
   ],
+  r: [
+    [/(^|\n)(\s*#[^\n]*)/g, (m, a, c) => a + span('comment', c)],
+    [/(\s)(#[^\n]*)/g, (m, ws, c) => ws + span('comment', c)],
+    [/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, (m) => span('string', m)],
+    [/\b(library|fromJSON|nrow|head|function|for|in|if|else|TRUE|FALSE|NULL)\b/g, (m) => span('keyword', m)],
+    // The text is already escaped when the rules run.
+    [/(&lt;-)/g, (m) => span('flag', m)],
+    [/\b(\d+)\b/g, (m) => span('number', m)],
+  ],
   python: [
     [/(^|\n)(\s*#[^\n]*)/g, (m, a, c) => a + span('comment', c)],
     [/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, (m) => span('string', m)],
@@ -31,7 +40,7 @@ const RULES = {
 
 /**
  * @param {string} code
- * @param {'shell'|'json'|'python'|'text'} [lang]
+ * @param {'shell'|'json'|'python'|'r'|'text'} [lang]
  * @returns {string} HTML, safe to set as innerHTML
  */
 export function highlight(code, lang = 'text') {

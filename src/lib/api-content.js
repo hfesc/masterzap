@@ -90,6 +90,7 @@ export const API_EXAMPLES = [
   { title: 'Buscar do seu lado, no índice da conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/ciro-soares/search-index | jq '.[] | select(.content | test("gonet"; "i")) | {id, date, content}'` , lang: 'shell' },
   { title: 'As chamadas de um contato', code: `curl -s ${SITE_ORIGIN}${API_BASE}/calls | jq '.calls[] | select(.conversation_id == "fabio-faria")'` , lang: 'shell' },
   { title: 'Toda menção a uma pessoa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/people | jq '.people[] | select(.slug == "paulo-gonet") | .conversations[] | {contact, n: (.mentions | length)}'` , lang: 'shell' },
+  { title: 'Em R', lang: 'r', code: `library(jsonlite)\nr <- fromJSON("${SITE_ORIGIN}${API_BASE}/calls")\nnrow(r$calls)  # chamadas\nhead(r$calls[, c("conversation_id", "timestamp", "kind", "status")])` },
   { title: 'Em Python', lang: 'python', code: `import requests\nr = requests.get("${SITE_ORIGIN}${API_BASE}/calls").json()\nprint(len(r["calls"]), "chamadas;", r["calls"][0])` },
 ];
 
