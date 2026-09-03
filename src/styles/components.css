@@ -607,30 +607,7 @@
 /* Mobile handled in shared drawer media query above */
 
 /* ── Profile Placeholder (main area when profile is open) ── */
-.profile-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 100%;
-  color: var(--WDS-content-deemphasized);
-  gap: 12px;
-  z-index: 1;
-  position: relative;
-  background-color: var(--WDS-surface-emphasized);
-}
-
-.profile-placeholder svg {
-  color: var(--WDS-warm-gray-300);
-}
-
-.profile-placeholder-text {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--WDS-content-default);
-  letter-spacing: -0.014em;
-}
+/* Sobre/Perfil placeholders reuse the empty-state card; nothing to add. */
 
 /* ── Profile Drawer (DV profile, replaces sidebar) ── */
 .profile-drawer {
@@ -1131,8 +1108,7 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--WDS-white);
 }
 
@@ -1642,4 +1618,11 @@
   left: auto;
   right: 0;
   transform: none;
+}
+
+.calls-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

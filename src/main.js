@@ -160,10 +160,8 @@ async function init() {
     mainAreaSavedContent = Array.from(mainArea.children);
     mainAreaSavedContent.forEach(child => child.style.display = 'none');
 
-    const placeholder = document.createElement('div');
-    placeholder.className = 'profile-placeholder';
-    placeholder.innerHTML = `${iconSvg}<div class="profile-placeholder-text">${label}</div>`;
-    mainArea.appendChild(placeholder);
+    // The same card the empty state uses: icon and title, no footer.
+    renderEmptyState(mainArea, { title: label, text: '', iconSvg, footer: null, className: 'profile-placeholder' });
   }
 
   /** Restore main area children from saved state. */
@@ -569,8 +567,12 @@ async function init() {
   // The calls screen takes the list's place; the log is one file, fetched
   // the first time it is asked for.
   let callsPromise = null;
+  const SVG_CALLS = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+
   router.on('calls', async () => {
     showEmptyState();
+    while (mainArea.firstChild) mainArea.removeChild(mainArea.firstChild);
+    renderEmptyState(mainArea, { title: 'Chamadas', text: 'As chamadas registradas no material, mais recentes primeiro. Toque numa chamada para abrir a conversa no ponto em que ela aconteceu.', iconSvg: SVG_CALLS });
     callsPromise ??= fetch('/data/calls.json').then(r => r.json()).then(d => d.calls);
     let calls = [];
     try { calls = await callsPromise; } catch { callsPromise = null; }

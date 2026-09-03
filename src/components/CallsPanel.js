@@ -162,16 +162,21 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   heading.textContent = 'Recentes';
   panel.appendChild(heading);
 
+  // Everything above stays put; only this box scrolls, as in the chat list.
+  const scroll = document.createElement('div');
+  scroll.className = 'calls-scroll';
+  panel.appendChild(scroll);
+
   const list = document.createElement('div');
   list.className = 'calls-list';
   list.setAttribute('role', 'list');
-  panel.appendChild(list);
+  scroll.appendChild(list);
 
   const empty = document.createElement('p');
   empty.className = 'calls-empty';
   empty.textContent = 'Nenhuma chamada com esse filtro.';
   empty.hidden = true;
-  panel.appendChild(empty);
+  scroll.appendChild(empty);
 
   function render() {
     const filter = chips.querySelector('.active')?.dataset.filter || 'todas';
@@ -189,7 +194,7 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   const foot = document.createElement('p');
   foot.className = 'calls-foot';
   foot.textContent = `${calls.length} chamadas registradas no material. Tocar numa chamada abre a conversa no ponto em que ela aconteceu.`;
-  panel.appendChild(foot);
+  scroll.appendChild(foot);
   return panel;
 }
 
