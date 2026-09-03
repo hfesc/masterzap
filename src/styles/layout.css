@@ -536,8 +536,8 @@
   height: 100%;
   box-sizing: border-box;
   padding: 32px 24px 24px;
-  /* A plain ground, no wallpaper: the doodle belongs to a conversation. */
-  background: var(--WDS-background-wash-plain, #f7f5f3);
+  /* The ground WhatsApp Web uses behind its intro card: warm off-white, no wallpaper. */
+  background: #f7f5f3;
   position: relative;
 }
 
@@ -551,7 +551,6 @@
   padding: 40px 32px 36px;
   border-radius: 16px;
   background: var(--WDS-white);
-  box-shadow: 0 1px 3px rgba(11, 20, 26, 0.08), 0 6px 20px rgba(11, 20, 26, 0.06);
 }
 
 .empty-state-icon {
