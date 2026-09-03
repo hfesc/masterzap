@@ -218,6 +218,8 @@ describe('the API page', () => {
     expect(html).toContain(MCP_URL);
     expect(html).toContain(`${MCP_LIMITS.perDay}/dia`);
     expect(html).toContain('claude mcp add --transport http masterwhats');
+    expect(html).toContain('<h2>Exemplos com a API</h2>');
+    expect(html).toContain('curl -s https://www.masterwhats.com.br/api/v1/calls');
     expect(html).toContain('<link rel="canonical" href="https://www.masterwhats.com.br/api">');
   });
 

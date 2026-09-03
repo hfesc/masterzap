@@ -10,7 +10,7 @@
  */
 
 import { renderProfileSections } from './ProfileSections.js';
-import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_CREDITS } from '../lib/api-content.js';
+import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_EXAMPLES, MCP_EXAMPLES, API_CREDITS } from '../lib/api-content.js';
 import { API_ROUTES, API_BASE, SITE_ORIGIN, MCP_URL, MCP_LIMITS } from '../lib/api-routes.js';
 import { copyText } from '../lib/utils.js';
 import { parseLinks } from '../lib/profile-content.js';
@@ -114,7 +114,8 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   // The table, from the same source the rewrites follow.
   const routesEl = section('A API estática');
   const lead = document.createElement('p');
-  lead.textContent = `Base: ${SITE_ORIGIN}${API_BASE}. Toque numa rota para abrir o exemplo.`;
+  // Static content through parseLinks — safe innerHTML
+  lead.innerHTML = parseLinks(`Base: \`${SITE_ORIGIN}${API_BASE}\`. Toque numa rota para abrir o exemplo.`);
   routesEl.appendChild(lead);
   const list = document.createElement('div');
   list.className = 'api-routes';
@@ -170,6 +171,23 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     el.appendChild(codeBlock(client.code, { onCopy }));
     custom.appendChild(el);
   }
+
+  const apiEx = section('Exemplos com a API');
+  for (const ex of API_EXAMPLES) {
+    const h = document.createElement('p');
+    h.className = 'api-example-title';
+    h.textContent = ex.title;
+    apiEx.appendChild(h);
+    apiEx.appendChild(codeBlock(ex.code, { onCopy }));
+  }
+  custom.appendChild(apiEx);
+
+  const mcpEx = section('Exemplos com o MCP');
+  const intro = document.createElement('p');
+  intro.textContent = 'Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.';
+  mcpEx.appendChild(intro);
+  for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy, label: 'Copiar pergunta' }));
+  custom.appendChild(mcpEx);
 
   renderProfileSections(body, [], [], API_CREDITS, {});
   drawer.appendChild(body);

@@ -1483,3 +1483,10 @@
 .api-sections {
   padding-top: 0;
 }
+
+.api-example-title {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--WDS-content-default);
+}

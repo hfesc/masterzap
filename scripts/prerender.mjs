@@ -31,7 +31,7 @@ import { getContactProfile, VORCARO_PROFILE, SOURCES } from '../src/lib/profile-
 import { SETTINGS_CONTENT } from '../src/lib/settings-content.js';
 import { PEOPLE } from '../src/lib/people-content.js';
 import { API_ROUTES, API_BASE, BULK_RELEASE, MCP_LIMITS, MCP_URL } from '../src/lib/api-routes.js';
-import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_CREDITS } from '../src/lib/api-content.js';
+import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_EXAMPLES, MCP_EXAMPLES, API_CREDITS } from '../src/lib/api-content.js';
 import {
   ROOT, SITE, REPO, TIMEZONE, UTC_OFFSET,
   loadEntries, loadMessages, sourceOf, contactOf, whoIs, createResolver, mentionsOf, createLocator, isPaged, PREVIEW_MESSAGES,
@@ -426,6 +426,9 @@ function apiPage() {
   for (const c of MCP_CLIENTS) {
     body.push(`<h3>Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
   }
+  body.push('<h2>Exemplos com a API</h2>');
+  for (const ex of API_EXAMPLES) body.push(`<p><b>${escapeHtml(ex.title)}</b></p>`, `<pre><code>${escapeHtml(ex.code)}</code></pre>`);
+  body.push('<h2>Exemplos com o MCP</h2>', '<p>Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.</p>', '<ul>', ...MCP_EXAMPLES.map(q => `<li>${escapeHtml(q)}</li>`), '</ul>');
   body.push(`<p class="how">${linksToHtml(API_CREDITS)}</p>`);
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'WebAPI', '@id': `${SITE}/api`, url: `${SITE}/api`,

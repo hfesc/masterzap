@@ -79,4 +79,25 @@ export const MCP_TOOLS = [
   ['get_person', 'toda menção a uma pessoa'],
 ];
 
+/** Things to paste in a terminal. Every route of the table has one. */
+export const API_EXAMPLES = [
+  { title: 'As conversas e seus ids', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations | jq '.conversations[] | {id, contact, total_messages}'` },
+  { title: 'Os dias de uma conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes | jq '.dates[] | .date'` },
+  { title: 'As mensagens de um dia, com página do laudo', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes/days/2025-11-15 | jq '.messages[] | {time, sender, content, source_page}'` },
+  { title: 'Um mês da conversa grande', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/martha-graeff/months/2024-12 | jq '.messages | length'` },
+  { title: 'Buscar do seu lado, no índice da conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/ciro-soares/search-index | jq '.[] | select(.content | test("gonet"; "i")) | {id, date, content}'` },
+  { title: 'As chamadas de um contato', code: `curl -s ${SITE_ORIGIN}${API_BASE}/calls | jq '.calls[] | select(.conversation_id == "fabio-faria")'` },
+  { title: 'Toda menção a uma pessoa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/people | jq '.people[] | select(.slug == "paulo-gonet") | .conversations[] | {contact, n: (.mentions | length)}'` },
+  { title: 'Em Python', code: `import requests\nr = requests.get("${SITE_ORIGIN}${API_BASE}/calls").json()\nprint(len(r["calls"]), "chamadas;", r["calls"][0])` },
+];
+
+/** Things to ask a model once the MCP is connected. */
+export const MCP_EXAMPLES = [
+  'O que Vorcaro escreveu para Alexandre de Moraes dois dias antes de ser preso? Cite data, hora e a página do laudo.',
+  'Em quais conversas o nome Gonet aparece, e o que se diz sobre ele em cada uma?',
+  'Quando Vorcaro disse a Martha que o presidente do Banco Central tinha falado da casa deles? Mostre a mensagem e a seguinte.',
+  'Existe alguma conversa entre Vorcaro e André Esteves? Se não, onde ele é mencionado?',
+  'Liste as chamadas com Ciro Soares e o que foi conversado em volta de cada uma.',
+];
+
 export const API_CREDITS = `Dúvidas e pedidos: {abra uma issue}[https://github.com/rafaelbressan/masterzap/issues]. As informações são de domínio público; este projeto não tem vinculação com nenhuma das partes.`;

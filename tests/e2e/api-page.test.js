@@ -65,6 +65,16 @@ test('explains each client, with a command to copy', async ({ page }) => {
   await expect(page.locator('.api-limits')).toContainText('300/dia');
 });
 
+test('ends with examples to paste: curl for the API, questions for the MCP', async ({ page }) => {
+  await openFromMenu(page);
+  await expect(page.locator('.profile-section-title', { hasText: 'Exemplos com a API' })).toBeVisible();
+  expect(await page.locator('.api-code pre', { hasText: 'curl -s' }).count()).toBeGreaterThan(5);
+  await expect(page.locator('.profile-section-title', { hasText: 'Exemplos com o MCP' })).toBeVisible();
+  await expect(page.locator('.api-code pre', { hasText: 'dois dias antes de ser preso' })).toBeVisible();
+  // The base is set as code, not loose text.
+  await expect(page.locator('.api-sections p code.inline-code').first()).toHaveText('https://www.masterwhats.com.br/api/v1');
+});
+
 test('closes back to the list', async ({ page }) => {
   await openFromMenu(page);
   await page.locator('.api-drawer .profile-drawer-close').click();
