@@ -127,7 +127,7 @@ A arquitetura já está ~80% preparada para escalar. O `DataStore` é agnóstico
 
 ## Aviso Legal
 
-As informações compiladas neste projeto são de domínio público, extraídas de reportagens jornalísticas e fontes abertas. Este projeto não tem vinculação com nenhuma das partes envolvidas.
+O MasterWhats é um projeto pessoal de visualização de dados, sem fins comerciais e sem vínculo com nenhuma das pessoas, empresas ou instituições citadas. Reproduz material que já era público — reportagens e um documento oficial cujo sigilo foi levantado judicialmente — e não atesta a veracidade dos fatos narrados nas mensagens. Transcrições podem conter erros; pedidos de correção ou remoção são atendidos pelas issues. Texto completo, com as referências legais: https://www.masterwhats.com.br/legal (fonte única em `src/lib/legal-content.js`).
 
 ---
 

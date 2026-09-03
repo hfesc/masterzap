@@ -22,7 +22,7 @@ export const FAVORITE_CONVERSATIONS = new Set(['alexandre-de-moraes', 'martha-gr
  * @param {function} options.onSelect - called with conversation id
  * @param {Set<string>} [options.readConversations] - ids already opened
  */
-export function renderSidebar(container, { conversations, onSelect, onProfile, onAbout, onExportAll, onCalls, onChats, onApi, readConversations = new Set() }) {
+export function renderSidebar(container, { conversations, onSelect, onProfile, onAbout, onExportAll, onCalls, onChats, onApi, onLegal, readConversations = new Set() }) {
   const el = document.createElement('aside');
   el.className = 'sidebar';
   el.setAttribute('role', 'navigation');
@@ -264,6 +264,7 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
       { label: 'Perfil', action: onProfile, enabled: !!onProfile },
       { label: 'Exportar tudo (.zip)', action: onExportAll, enabled: !!onExportAll },
       { label: 'API/MCP', action: onApi, enabled: !!onApi },
+      { label: 'Aviso legal', action: onLegal, enabled: !!onLegal },
       { label: 'Sobre o MasterWhats', action: onAbout, enabled: !!onAbout },
     ];
 

@@ -32,6 +32,7 @@ import { SETTINGS_CONTENT } from '../src/lib/settings-content.js';
 import { PEOPLE } from '../src/lib/people-content.js';
 import { API_ROUTES, API_BASE, BULK_RELEASE, MCP_LIMITS, MCP_URL, slugOf } from '../src/lib/api-routes.js';
 import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_EXAMPLES, MCP_EXAMPLES, API_CREDITS } from '../src/lib/api-content.js';
+import { LEGAL_INTRO, LEGAL_SECTIONS, LEGAL_SHORT, LEGAL_CREDITS, LEGAL_VERSION } from '../src/lib/legal-content.js';
 
 import {
   ROOT, SITE, REPO, TIMEZONE, UTC_OFFSET,
@@ -345,6 +346,7 @@ ${JSON.stringify(jsonLd, null, 2)}
 <main>
 <header><a href="/">MasterWhats</a> · <a href="/quem">Pessoas citadas</a></header>
 ${body}
+<footer class="how" style="margin-top:40px;padding-top:16px;border-top:1px solid #d1d7db;font-size:13px">${linksToHtml(LEGAL_SHORT)}</footer>
 </main>
 </body>
 </html>
@@ -442,6 +444,22 @@ function apiPage() {
   return standalone({ title: 'API/MCP — MasterWhats', description: `${API_INTRO.sub}. ${API_ROUTES.length} rotas estáticas sem limite e um servidor MCP com ${MCP_LIMITS.perDay} chamadas por dia por cliente.`, path: '/api', jsonLd, body: body.join('\n') });
 }
 
+/** The legal notice as a page of its own. */
+function legalPage() {
+  const body = [`<h1>${escapeHtml(LEGAL_INTRO.title)}</h1>`, `<p class="role">${escapeHtml(LEGAL_INTRO.sub)}</p>`];
+  for (const s of LEGAL_SECTIONS) {
+    body.push(`<h2 id="legal-${slugOf(s.title)}">${escapeHtml(s.title)}</h2>`);
+    for (const p of s.paragraphs) body.push(`<p>${linksToHtml(p.text)}</p>`);
+  }
+  body.push(`<p class="how">${linksToHtml(LEGAL_CREDITS)}</p>`);
+  const jsonLd = {
+    '@context': 'https://schema.org', '@type': 'WebPage', '@id': `${SITE}/legal`, url: `${SITE}/legal`,
+    name: 'Aviso legal — MasterWhats', description: linksToText(LEGAL_SHORT).slice(0, 300), inLanguage: 'pt-BR',
+    isPartOf: { '@id': `${SITE}/#dataset` }, dateModified: LEGAL_VERSION,
+  };
+  return standalone({ title: 'Aviso legal — MasterWhats', description: linksToText(LEGAL_SHORT).slice(0, 160), path: '/legal', jsonLd, body: body.join('\n') });
+}
+
 /** The section llms.txt gets at build time, so it lists what the table lists. */
 function llmsApiSection() {
   return [
@@ -449,6 +467,7 @@ function llmsApiSection() {
     `Os mesmos arquivos do site com nome estável, na CDN, sem chave e sem limite. Documentação: ${SITE}/api`,
     ...API_ROUTES.map(r => `- ${SITE}${API_BASE}${r.route} — ${r.description} Ex.: ${SITE}${API_BASE}${r.example}`),
     `- MCP (Streamable HTTP, sem auth): ${MCP_URL} — tools ${MCP_TOOLS.map(([t]) => t).join(', ')}; ${MCP_LIMITS.perMinute}/min e ${MCP_LIMITS.perDay}/dia por cliente. Para volume, use as rotas acima.`,
+    '', '## Aviso legal', linksToText(LEGAL_SHORT), `Texto completo: ${SITE}/legal`,
     '',
   ].join('\n');
 }
@@ -529,6 +548,7 @@ function sitemap(built, people) {
   }
   rows.push(url(`${SITE}/quem`, '0.8'));
   rows.push(url(`${SITE}/api`, '0.7'));
+  rows.push(url(`${SITE}/legal`, '0.5', 'monthly'));
   for (const { person } of people) rows.push(url(`${SITE}/quem/${person.slug}`, '0.7'));
   rows.push(url(`${SITE}/llms.txt`, '0.7'));
   rows.push(url(`${SITE}/llms-full.txt`, '0.7'));
@@ -595,6 +615,8 @@ const stampSizes = (text) => text.replace(/(masterwhats(?:-export)?\.(?:md|json|
 writeFileSync(join(DIST, 'llms.txt'), stampSizes(readFileSync(join(DIST, 'llms.txt'), 'utf-8')) + llmsApiSection());
 mkdirSync(join(DIST, 'api'), { recursive: true });
 writeFileSync(join(DIST, 'api', 'index.html'), apiPage());
+mkdirSync(join(DIST, 'legal'), { recursive: true });
+writeFileSync(join(DIST, 'legal', 'index.html'), legalPage());
 writeFileSync(join(DIST, 'llms-full.txt'), stampSizes(llmsFull(built, people)));
 writeFileSync(join(DIST, 'sitemap.xml'), sitemap(built, people));
 console.log(`\nDone! ${built.length} conversations, ${people.length} people, llms-full.txt, sitemap.xml → ${DIST}`);

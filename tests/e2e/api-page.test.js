@@ -126,3 +126,28 @@ test('a route link opens the JSON', async ({ page, context }) => {
   const body = await tab.evaluate(() => document.body.innerText);
   expect(JSON.parse(body).conversations.length).toBeGreaterThan(20);
 });
+
+test.describe('Aviso legal', () => {
+  test('opens from the menu at #/legal, in the place Sobre takes, and closes back', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.conversation-item').first()).toBeVisible();
+    await page.locator('.sidebar-menu-btn').click();
+    await page.locator('.sidebar-dropdown-item', { hasText: 'Aviso legal' }).click();
+    await expect(page.locator('.legal-drawer')).toBeVisible();
+    await expect(page).toHaveURL(/#\/legal$/);
+    await expect(page.locator('.legal-drawer .profile-section-title', { hasText: 'Veracidade' })).toBeVisible();
+    await expect(page.locator('.legal-drawer')).toContainText('não afirma que os fatos narrados');
+    await page.locator('.legal-drawer .profile-drawer-close').click();
+    await expect(page.locator('.legal-drawer')).toHaveCount(0);
+    await expect(page).not.toHaveURL(/#\/legal/);
+  });
+
+  test('the Sobre drawer ends with the short notice', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.conversation-item').first()).toBeVisible();
+    await page.locator('.sidebar-menu-btn').click();
+    await page.locator('.sidebar-dropdown-item', { hasText: 'Sobre o MasterWhats' }).click();
+    await expect(page.locator('.settings-drawer .profile-section-title', { hasText: 'Aviso legal' })).toBeAttached();
+    await expect(page.locator('.settings-drawer')).toContainText('não atesta a veracidade');
+  });
+});

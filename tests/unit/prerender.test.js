@@ -8,6 +8,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, statSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { API_ROUTES, MCP_URL, MCP_LIMITS } from '../../src/lib/api-routes.js';
+import { LEGAL_SECTIONS } from '../../src/lib/legal-content.js';
 
 const ROOT = join(import.meta.dirname, '../..');
 const DIST = join(ROOT, 'dist');
@@ -218,7 +219,7 @@ describe('the API page', () => {
     expect(html).toContain(MCP_URL);
     expect(html).toContain(`${MCP_LIMITS.perDay}/dia`);
     expect(html).toContain('claude mcp add --transport http masterwhats');
-    expect(html).toContain('<h2>Exemplos com a API</h2>');
+    expect(html).toContain('>Exemplos com a API</h2>');
     expect(html).toContain('curl -s https://www.masterwhats.com.br/api/v1/calls');
     expect(html).toContain('<link rel="canonical" href="https://www.masterwhats.com.br/api">');
   });
@@ -235,6 +236,23 @@ describe('the API page', () => {
     const gonet = people.find(p => p.slug === 'paulo-gonet');
     expect(gonet.total).toBe(12);
     expect(gonet.conversations.find(c => c.id === 'ciro-soares').mentions.find(m => m.id === 34).laudo).toEqual({ page: 207, figure: 219 });
+  });
+});
+
+describe('the legal notice', () => {
+  it('has a page of its own, with every section, and is on the sitemap', () => {
+    const html = readFileSync(join(DIST, 'legal/index.html'), 'utf-8');
+    expect(html).toContain('<link rel="canonical" href="https://www.masterwhats.com.br/legal">');
+    for (const s of LEGAL_SECTIONS) expect(html, s.title).toContain(`>${s.title}</h2>`);
+    expect(html).toContain('não atesta a veracidade');
+    expect(readFileSync(join(DIST, 'sitemap.xml'), 'utf-8')).toContain(`<loc>${SITE}/legal</loc>`);
+  });
+
+  it('travels with everything the site hands out', () => {
+    expect(readFileSync(join(DIST, 'llms.txt'), 'utf-8')).toContain('## Aviso legal');
+    expect(readFileSync(join(DIST, 'api/index.html'), 'utf-8')).toContain('não atesta a veracidade');
+    expect(readFileSync(join(DIST, 'quem/paulo-gonet/index.html'), 'utf-8')).toContain('não atesta a veracidade');
+    expect(readFileSync(join(DIST, 'index.html'), 'utf-8')).toContain('href="/legal"');
   });
 });
 

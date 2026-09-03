@@ -23,6 +23,7 @@ import {
 import { showImagePreview } from './components/ImagePreview.js';
 import { renderCallsPanel } from './components/CallsPanel.js';
 import { showApiDrawer } from './components/ApiDrawer.js';
+import { showLegalDrawer } from './components/LegalDrawer.js';
 import { exportUrl, EXPORT_ALL_URL, downloadFile } from './lib/export.js';
 import { copyText } from './lib/utils.js';
 
@@ -130,6 +131,19 @@ async function init() {
   }
 
   let activeApiDrawer = null;
+  let activeLegalDrawer = null;
+
+  /** Close the legal notice and restore sidebar + main area. */
+  function closeLegal() {
+    const wasOpen = !!activeLegalDrawer;
+    if (activeLegalDrawer) {
+      const d = activeLegalDrawer;
+      activeLegalDrawer = null;
+      d.destroy();
+    }
+    restoreMainArea();
+    if (wasOpen && router.getCurrentRoute().route === 'legal') router.navigate('home');
+  }
 
   /** Close the API/MCP page and restore sidebar + main area. */
   function closeApi() {
@@ -181,6 +195,7 @@ async function init() {
     closeProfile();
     closeSettings();
     closeApi();
+    closeLegal();
   }
 
   // ── Placeholder SVGs ──────────────────────────────
@@ -413,6 +428,7 @@ async function init() {
     // One drawer at a time
     closeSettings();
     closeApi();
+    closeLegal();
     // Close chat drawers
     closeRightDrawers();
 
@@ -469,6 +485,7 @@ async function init() {
     // One drawer at a time
     closeProfile();
     closeApi();
+    closeLegal();
     // Close chat drawers
     closeRightDrawers();
 
@@ -477,6 +494,7 @@ async function init() {
     activeSettingsDrawer = showSettingsDrawer(container, {
       onClose: closeSettings,
       onApi: () => (router.getCurrentRoute().route === 'api' ? openApi() : router.navigate('api')),
+    onLegal: () => (router.getCurrentRoute().route === 'legal' ? openLegal() : router.navigate('legal')),
       actions: drawerActions(closeSettings),
     });
   }
@@ -484,6 +502,19 @@ async function init() {
   const SVG_CODE = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 
   /** The API/MCP page, in the settings drawer's place. Lives at #/api. */
+  const SVG_LEGAL = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>`;
+
+  /** The legal notice, in the settings drawer's place. Lives at #/legal. */
+  function openLegal() {
+    if (activeLegalDrawer) return;
+    closeProfile();
+    closeSettings();
+    closeApi();
+    closeRightDrawers();
+    hideMainAreaWithPlaceholder(SVG_LEGAL, 'Aviso legal');
+    activeLegalDrawer = showLegalDrawer(container, { onClose: closeLegal });
+  }
+
   function openApi(section) {
     if (activeApiDrawer) {
       const target = section && document.getElementById(`api-${section}`);
@@ -492,6 +523,7 @@ async function init() {
     }
     closeProfile();
     closeSettings();
+    closeLegal();
     closeRightDrawers();
     hideMainAreaWithPlaceholder(SVG_CODE, 'API/MCP');
     activeApiDrawer = showApiDrawer(container, {
@@ -559,6 +591,10 @@ async function init() {
 
   const router = new HashRouter();
   router.on('home', () => { sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); });
+  router.on('legal', () => {
+    if (activeLegalDrawer) return;
+    sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); openLegal();
+  });
   router.on('api', (section) => {
     if (activeApiDrawer) { openApi(section); return; }
     sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); openApi(section);

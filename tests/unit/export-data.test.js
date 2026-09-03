@@ -69,10 +69,11 @@ describe('the JSON', () => {
 });
 
 describe('the Markdown', () => {
-  it('opens with a provenance block', () => {
+  it('opens with a provenance block, and the legal notice', () => {
     for (const conv of conversations) {
       const text = md(conv.id);
       expect(text, conv.id).toMatch(/^# /);
+      expect(text, conv.id).toContain('não atesta a veracidade');
       expect(text, conv.id).toContain('## Proveniência');
       expect(text, conv.id).toContain('| Fonte |');
       expect(text, conv.id).toContain('| Fuso dos horários | America/Sao_Paulo');

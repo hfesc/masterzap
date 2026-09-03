@@ -18,6 +18,7 @@ import JSZip from 'jszip';
 
 import { getContactProfile, VORCARO_PROFILE, SOURCES } from '../src/lib/profile-content.js';
 import { SETTINGS_CONTENT } from '../src/lib/settings-content.js';
+import { LEGAL_SHORT } from '../src/lib/legal-content.js';
 import {
   ROOT, SITE, REPO, TIMEZONE, UTC_OFFSET,
   loadEntries, loadMessages, sourceOf, contactOf, whoIs, createResolver, createLocator, isPaged,
@@ -116,7 +117,7 @@ function conversationMarkdown(entry, messages, { standalone = true, month = null
 
   out.push(`${heading} Daniel Vorcaro ↔ ${contact}${month ? ` — ${monthName(month)}` : ''}`, '');
   if (standalone) {
-    out.push(`> Exportado de [MasterWhats](${SITE}/#/chat/${entry.id}) em ${generatedAt.slice(0, 10)}.${month ? ` Só ${monthName(month)} (${messages.length} mensagens); a conversa inteira está em masterwhats-${entry.id}.md.` : ''} Código e dados: ${REPO}.`, '');
+    out.push(`> Exportado de [MasterWhats](${SITE}/#/chat/${entry.id}) em ${generatedAt.slice(0, 10)}.${month ? ` Só ${monthName(month)} (${messages.length} mensagens); a conversa inteira está em masterwhats-${entry.id}.md.` : ''} Código e dados: ${REPO}.`, `> ${linksToMarkdown(LEGAL_SHORT)}`, '');
   }
 
   out.push(`${sub} Proveniência`, '', '| | |', '|---|---|');
@@ -212,8 +213,8 @@ function readme(conversations) {
     '- `[imagem de visualização única — conteúdo não recuperado]`: enviada em visualização única e não recuperada pela perícia.', '',
     aboutMarkdown(),
     '## Fontes gerais', '', ...SOURCES.map(s => `- [${s.label}](${s.url})`), '',
-    `## Aviso`, '',
-    'As informações aqui compiladas são de domínio público, extraídas de reportagens jornalísticas e de documentos cujo sigilo foi levantado judicialmente. Este projeto não tem vinculação com nenhuma das partes envolvidas.', '',
+    `## Aviso legal`, '',
+    linksToMarkdown(LEGAL_SHORT), '',
   ].join('\n');
 }
 

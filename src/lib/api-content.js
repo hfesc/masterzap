@@ -103,4 +103,6 @@ export const MCP_EXAMPLES = [
   'Liste as chamadas com Ciro Soares e o que foi conversado em volta de cada uma.',
 ];
 
-export const API_CREDITS = `Dúvidas e pedidos: {abra uma issue}[https://github.com/rafaelbressan/masterzap/issues]. As informações são de domínio público; este projeto não tem vinculação com nenhuma das partes.`;
+import { LEGAL_SHORT } from './legal-content.js';
+
+export const API_CREDITS = `Dúvidas e pedidos: {abra uma issue}[https://github.com/rafaelbressan/masterzap/issues]. ${LEGAL_SHORT}`;
