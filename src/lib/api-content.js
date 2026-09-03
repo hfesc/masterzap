@@ -17,7 +17,7 @@ export const API_SECTIONS = [
   {
     title: 'O que é',
     paragraphs: [
-      { text: `Tudo que este site mostra existe como arquivo: JSON por conversa, por dia e por mês, as chamadas, as pessoas citadas. A API é só um nome estável para esses arquivos — {${SITE_ORIGIN}${API_BASE}/…}[${SITE_ORIGIN}/api] — servidos direto da CDN, sem servidor no meio. Não tem chave, não tem limite, e o que você baixa é exatamente o que o site lê.` },
+      { text: `Tudo que este site mostra existe como arquivo: JSON por conversa, por dia e por mês, as chamadas, as pessoas citadas. A API é só um nome estável para esses arquivos — {${SITE_ORIGIN}${API_BASE}/…}[${SITE_ORIGIN}${API_BASE}/conversations] — servidos direto da CDN, sem servidor no meio. Não tem chave, não tem limite, e o que você baixa é exatamente o que o site lê.` },
       { text: 'O MCP é a mesma coisa para modelos: um servidor que um ChatGPT, um Claude ou um Cursor conecta e passa a responder sobre as conversas citando data, página e figura do laudo, com link para a mensagem.' },
     ],
   },
