@@ -91,7 +91,7 @@ test('survives Sobre and Perfil in between', async ({ page }) => {
   await page.locator('.sidebar-menu-btn').click({ force: true }).catch(() => {});
   // Sobre from the Sobre shortcut in the rail or the menu, whichever this layout has.
   const sobre = page.locator('button[aria-label="Sobre"]');
-  if (await sobre.count()) await sobre.first().click();
+  if (await sobre.first().isVisible()) await sobre.first().click();
   else { await page.locator('.api-drawer .profile-drawer-close').click(); await page.locator('.sidebar-menu-btn').click(); await page.locator('.sidebar-dropdown-item', { hasText: 'Sobre o MasterWhats' }).click(); }
   await expect(page.locator('.settings-drawer:not(.api-drawer)')).toBeVisible();
   await expect(page.locator('.api-drawer')).toHaveCount(0);

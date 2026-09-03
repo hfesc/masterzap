@@ -142,7 +142,7 @@ async function init() {
       d.destroy();
     }
     restoreMainArea();
-    if (wasOpen && router.getCurrentRoute().route === 'legal') router.navigate('home');
+    if (wasOpen && router.getCurrentRoute().route === 'legal') router.replace('home');
   }
 
   /** Close the API/MCP page and restore sidebar + main area. */
@@ -156,7 +156,9 @@ async function init() {
     restoreMainArea();
     // The page lives at #/api; leaving it by any door leaves the address too,
     // or the next "open" would navigate to where we already are and do nothing.
-    if (wasOpen && router.getCurrentRoute().route === 'api') router.navigate('home');
+    // Silently: a hashchange here would run the home handler, which closes
+    // every drawer — including the one that may be opening in our place.
+    if (wasOpen && router.getCurrentRoute().route === 'api') router.replace('home');
   }
 
   /** Close the settings drawer and restore sidebar + main area. */
@@ -562,6 +564,7 @@ async function init() {
     onCalls: () => router.navigate('calls'),
     onChats: () => router.navigate('home'),
     onApi: () => (router.getCurrentRoute().route === 'api' ? openApi() : router.navigate('api')),
+    onLegal: () => (router.getCurrentRoute().route === 'legal' ? openLegal() : router.navigate('legal')),
     onSelect: (id) => {
       // Close profile/settings if open before navigating
       closeProfile();
