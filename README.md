@@ -89,6 +89,10 @@ Tudo que o site mostra sai limpo, sem precisar do site:
 
 O `.md` se explica sozinho: proveniência (fonte, documento e seu sha256, período, fuso), quem é o contato com fontes, e as mensagens dia a dia — as do relatório da PF citam `laudo p. N, fig. M`. O `.json` traz os mesmos metadados e perfil, mais todas as mensagens com os campos originais e `timestamp` com fuso (`-03:00`). Gerado no build por `scripts/export.mjs`, que importa os perfis do próprio app para não descolar.
 
+## API e MCP
+
+Os mesmos arquivos do site com nome estável — `/api/v1/…` — servidos da CDN, sem chave e sem limite; são `rewrites` no `vercel.json` gerados de **uma tabela** (`src/lib/api-routes.js`) que também alimenta a página `/api`, o `llms.txt` e o servidor MCP. O MCP (`api/mcp.js`, `mcp-handler`, Streamable HTTP, sem auth) tem cota por cliente pra ninguém consumir o dia do site sozinho. Os consolidados vão pro GitHub Releases (`scripts/publish-bulk.sh`). Tudo explicado em `⋮ → API/MCP` no app ou em https://www.masterwhats.com.br/api.
+
 ## Limitações Conhecidas
 
 - **Apenas mensagens de texto** — imagens, áudios, vídeos, stickers e documentos não foram incluídos nos vazamentos. As mensagens de mídia aparecem com placeholder indicando o tipo de conteúdo.

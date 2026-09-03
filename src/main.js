@@ -22,6 +22,7 @@ import {
 } from './lib/screenshot.js';
 import { showImagePreview } from './components/ImagePreview.js';
 import { renderCallsPanel } from './components/CallsPanel.js';
+import { showApiDrawer } from './components/ApiDrawer.js';
 import { exportUrl, EXPORT_ALL_URL, downloadFile } from './lib/export.js';
 import { copyText } from './lib/utils.js';
 
@@ -128,6 +129,18 @@ async function init() {
     restoreMainArea();
   }
 
+  let activeApiDrawer = null;
+
+  /** Close the API/MCP page and restore sidebar + main area. */
+  function closeApi() {
+    if (activeApiDrawer) {
+      const d = activeApiDrawer;
+      activeApiDrawer = null;
+      d.destroy();
+    }
+    restoreMainArea();
+  }
+
   /** Close the settings drawer and restore sidebar + main area. */
   function closeSettings() {
     if (activeSettingsDrawer) {
@@ -165,6 +178,7 @@ async function init() {
     closeChat();
     closeProfile();
     closeSettings();
+    closeApi();
   }
 
   // ── Placeholder SVGs ──────────────────────────────
@@ -462,6 +476,21 @@ async function init() {
     });
   }
 
+  const SVG_CODE = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+
+  /** The API/MCP page, in the settings drawer's place. Lives at #/api. */
+  function openApi() {
+    if (activeApiDrawer) return;
+    closeProfile();
+    closeSettings();
+    closeRightDrawers();
+    hideMainAreaWithPlaceholder(SVG_CODE, 'API/MCP');
+    activeApiDrawer = showApiDrawer(container, {
+      onClose: () => { closeApi(); if (router.getCurrentRoute().route === 'api') router.navigate('home'); },
+      onCopy: (ok) => showToast(mainArea, ok ? 'Copiado' : 'Não foi possível copiar'),
+    });
+  }
+
   // ── Wire nav rail ──────────────────────────────────
 
   const navRail = renderNavRail(container, {
@@ -489,6 +518,7 @@ async function init() {
     onExportAll: () => downloadFile(EXPORT_ALL_URL),
     onCalls: () => router.navigate('calls'),
     onChats: () => router.navigate('home'),
+    onApi: () => router.navigate('api'),
     onSelect: (id) => {
       // Close profile/settings if open before navigating
       closeProfile();
@@ -518,6 +548,7 @@ async function init() {
 
   const router = new HashRouter();
   router.on('home', () => { sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); });
+  router.on('api', () => { sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); openApi(); });
 
   // The calls screen takes the list's place; the log is one file, fetched
   // the first time it is asked for.

@@ -41,7 +41,9 @@ export class HashRouter {
    * @param {string|number} [messageId]
    */
   navigate(route, param, messageId) {
-    if (route === 'calls') {
+    if (route === 'api') {
+      window.location.hash = '#/api';
+    } else if (route === 'calls') {
       window.location.hash = '#/calls';
     } else if (route === 'home') {
       window.location.hash = '#/';
@@ -68,6 +70,7 @@ export class HashRouter {
     const cleaned = hash.replace(/^#\/?/, '');
     if (!cleaned) return { route: 'home', param: null, messageId: null };
     if (cleaned === 'calls') return { route: 'calls', param: null, messageId: null };
+    if (cleaned === 'api') return { route: 'api', param: null, messageId: null };
 
     // Match #/chat/:id/msg/:msgId
     const msgMatch = cleaned.match(/^chat\/([^/]+)\/msg\/(.+)$/);

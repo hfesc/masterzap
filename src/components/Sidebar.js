@@ -8,6 +8,7 @@ import { formatTime, escapeHtml, formatNumber, formatRelativeDate } from '../lib
 
 import { ICON_SEARCH as SEARCH_ICON, ICON_MEETBALL } from '../lib/icons.js';
 import { defaultAvatarSvg } from '../lib/avatar.js';
+import { ICON_CODE } from './ApiDrawer.js';
 
 /**
  * The two conversations pinned under "Favoritas" — the leaks this project is
@@ -22,7 +23,7 @@ export const FAVORITE_CONVERSATIONS = new Set(['alexandre-de-moraes', 'martha-gr
  * @param {function} options.onSelect - called with conversation id
  * @param {Set<string>} [options.readConversations] - ids already opened
  */
-export function renderSidebar(container, { conversations, onSelect, onProfile, onAbout, onExportAll, onCalls, onChats, readConversations = new Set() }) {
+export function renderSidebar(container, { conversations, onSelect, onProfile, onAbout, onExportAll, onCalls, onChats, onApi, readConversations = new Set() }) {
   const el = document.createElement('aside');
   el.className = 'sidebar';
   el.setAttribute('role', 'navigation');
@@ -261,6 +262,7 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
     const items = [
       { label: 'Perfil', action: onProfile, enabled: !!onProfile },
       { label: 'Exportar tudo (.zip)', action: onExportAll, enabled: !!onExportAll },
+      { label: 'API/MCP', icon: ICON_CODE, action: onApi, enabled: !!onApi },
       { label: 'Sobre o MasterWhats', action: onAbout, enabled: !!onAbout },
     ];
 
@@ -268,7 +270,8 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
       const btn = document.createElement('button');
       btn.className = 'sidebar-dropdown-item';
       if (!item.enabled) btn.classList.add('disabled');
-      btn.textContent = item.label;
+      // Static SVG icon + static label — safe innerHTML
+      btn.innerHTML = item.icon ? `<span class="sidebar-dropdown-icon">${item.icon}</span><span>${item.label}</span>` : `<span>${item.label}</span>`;
       if (item.enabled && item.action) {
         btn.addEventListener('click', () => { closeSidebarMenu(); item.action(); });
       }
