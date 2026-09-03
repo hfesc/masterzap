@@ -1143,8 +1143,8 @@
 .calls-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 14px 8px 8px 16px;
+  gap: 2px;
+  padding: 14px 8px 4px 16px;
 }
 
 .calls-title {
@@ -1563,18 +1563,6 @@
   position: relative;
 }
 
-/* The search slides open from the icon; the field inside is the list's own. */
-.calls-search {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease, opacity 0.2s ease;
-}
-
-.calls-search.open {
-  max-height: 64px;
-  opacity: 1;
-}
 
 .calls-empty {
   padding: 16px;

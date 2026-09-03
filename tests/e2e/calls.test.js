@@ -30,7 +30,7 @@ test.describe('Calls screen', () => {
 
   test('the buttons across the top are there and do nothing', async ({ page }) => {
     await openCalls(page);
-    for (const label of ['Ligar', 'Agendar', 'Teclado', 'Favoritos']) {
+    for (const label of ['Teclado', 'Nova chamada']) {
       await expect(page.locator(`.calls-panel button[aria-label="${label}"]`)).toBeDisabled();
     }
   });
@@ -85,8 +85,9 @@ test.describe('Getting there', () => {
 });
 
 test.describe('Finding a call', () => {
-  test('the chips narrow the list; the search narrows it by name', async ({ page }) => {
+  test('the chips narrow the list; the search, always there, narrows it by name', async ({ page }) => {
     await openCalls(page);
+    await expect(page.locator('.calls-search .sidebar-search-input')).toBeVisible();
     const total = await page.locator('.calls-item').count();
     await page.locator('.calls-panel .sidebar-tag[data-filter="perdida"]').click();
     const missed = await page.locator('.calls-item').count();
@@ -97,25 +98,10 @@ test.describe('Finding a call', () => {
     for (const meta of await page.locator('.calls-item-meta').allTextContents()) expect(meta).toMatch(/Perdida|Não atendida/);
     await expect(page.locator('.calls-recent')).toContainText('de');
 
-    await page.locator('.calls-header-btn[aria-label="Pesquisar chamadas"]').click();
     await page.locator('.calls-search .sidebar-search-input').fill('fabio');
     await expect(page.locator('.calls-item').first().locator('.calls-item-name')).toContainText('Fábio Faria');
     await page.locator('.calls-panel .sidebar-tag[data-filter="todas"]').click();
     expect(await page.locator('.calls-item').count()).toBeGreaterThanOrEqual(3);
-  });
-
-  test('the search opens from the icon and closes on it again', async ({ page }) => {
-    await openCalls(page);
-    const icon = page.locator('.calls-header-btn[aria-label="Pesquisar chamadas"]');
-    const field = page.locator('.calls-search');
-    await expect(field).not.toHaveClass(/open/);
-    await icon.click();
-    await expect(field).toHaveClass(/open/);
-    await expect(page.locator('.calls-search .sidebar-search-input')).toBeFocused();
-    await page.locator('.calls-search .sidebar-search-input').fill('martha');
-    await icon.click();
-    await expect(field).not.toHaveClass(/open/);
-    await expect(page.locator('.calls-recent')).toHaveText('Recentes');
   });
 
   test('the ⋮ opens the same menu the list has', async ({ page }) => {

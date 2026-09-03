@@ -21,6 +21,7 @@ import { normalize } from '../lib/search.js';
 
 const ICON_PHONE = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 const ICON_VIDEO = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`;
+const ICON_PHONE_PLUS = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5h6"/><path d="M18 2v6"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 const ICON_CALENDAR = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
 const ICON_KEYPAD = `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><circle cx="6" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>`;
 const ICON_HEART = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
@@ -106,11 +107,16 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   title.className = 'calls-title';
   title.textContent = 'Chamadas';
   header.appendChild(title);
-  const searchBtn = document.createElement('button');
-  searchBtn.className = 'calls-header-btn';
-  searchBtn.setAttribute('aria-label', 'Pesquisar chamadas');
-  searchBtn.innerHTML = ICON_SEARCH;
-  header.appendChild(searchBtn);
+  // The shortcuts WhatsApp Web keeps at the top right, drawn and disabled.
+  for (const [icon, label] of [[ICON_KEYPAD, 'Teclado'], [ICON_PHONE_PLUS, 'Nova chamada']]) {
+    const b = document.createElement('button');
+    b.className = 'calls-header-btn';
+    b.disabled = true;
+    b.setAttribute('aria-label', label);
+    b.setAttribute('title', label);
+    b.innerHTML = icon;
+    header.appendChild(b);
+  }
   const menuBtn = document.createElement('button');
   menuBtn.className = 'calls-header-btn';
   menuBtn.setAttribute('aria-label', 'Menu');
@@ -120,9 +126,8 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   header.appendChild(menuBtn);
   panel.appendChild(header);
 
-  // Search by name and a row of chips — the list's own field and tags, the
-  // same classes, so they look the same. The field slides open from the icon
-  // and closes on the icon again.
+  // Search by name — the list's own field, always there — and the chips
+  // where WhatsApp Web puts its "Favoritos / Ver tudo" row.
   const searchRow = document.createElement('div');
   searchRow.className = 'calls-search';
   searchRow.innerHTML = `<div class="sidebar-search"><div class="sidebar-search-wrapper"><span class="sidebar-search-icon">${ICON_SEARCH}</span></div></div>`;
@@ -133,14 +138,6 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
   input.setAttribute('aria-label', 'Pesquisar chamadas por nome');
   searchRow.querySelector('.sidebar-search-wrapper').appendChild(input);
   panel.appendChild(searchRow);
-  searchBtn.setAttribute('aria-expanded', 'false');
-  searchBtn.addEventListener('click', () => {
-    const open = !searchRow.classList.contains('open');
-    searchRow.classList.toggle('open', open);
-    searchBtn.setAttribute('aria-expanded', String(open));
-    if (open) input.focus();
-    else { input.value = ''; render(); }
-  });
 
   const chips = document.createElement('div');
   chips.className = 'sidebar-tags';
@@ -158,20 +155,6 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
     chips.appendChild(chip);
   }
   panel.appendChild(chips);
-
-  // The row of actions WhatsApp puts on top. None of them can do anything
-  // here, and they say so.
-  const actions = document.createElement('div');
-  actions.className = 'calls-actions';
-  for (const [icon, label] of [[ICON_PHONE, 'Ligar'], [ICON_CALENDAR, 'Agendar'], [ICON_KEYPAD, 'Teclado'], [ICON_HEART, 'Favoritos']]) {
-    const b = document.createElement('button');
-    b.className = 'calls-action';
-    b.disabled = true;
-    b.setAttribute('aria-label', label);
-    b.innerHTML = `<span class="calls-action-icon">${icon}</span><span class="calls-action-label">${label}</span>`;
-    actions.appendChild(b);
-  }
-  panel.appendChild(actions);
 
   const heading = document.createElement('h3');
   heading.className = 'calls-recent';
