@@ -1163,9 +1163,14 @@
   color: var(--WDS-content-default);
 }
 
+/* Dim the icon, not the button: opacity on the button would open a stacking
+   context and trap the tooltip beneath the search field. */
 .calls-header-btn:disabled {
-  opacity: 0.45;
   cursor: not-allowed;
+}
+
+.calls-header-btn:disabled svg {
+  opacity: 0.45;
 }
 
 .calls-actions {
