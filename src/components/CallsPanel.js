@@ -17,6 +17,7 @@
 
 import { defaultAvatarSvg } from '../lib/avatar.js';
 import { ICON_SEARCH, ICON_MEETBALL } from '../lib/icons.js';
+import { normalize } from '../lib/search.js';
 
 const ICON_PHONE = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 const ICON_VIDEO = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`;
@@ -54,6 +55,25 @@ export function groupCalls(calls) {
   return rows;
 }
 
+/** The filter chips, in the order they show; `status` null means all. */
+export const CALL_FILTERS = [
+  { key: 'todas', label: 'Todas', status: null },
+  { key: 'atendida', label: 'Atendidas', status: 'completed' },
+  { key: 'perdida', label: 'Perdidas', status: 'missed' },
+  { key: 'sem-resposta', label: 'Sem resposta', status: 'no_answer' },
+];
+
+/**
+ * The calls that match a name and a chip. Name matching is the app's:
+ * accent-blind, anywhere in the contact's name.
+ */
+export function filterCalls(calls, { query = '', filter = 'todas', nameOf }) {
+  const needle = normalize(query.trim());
+  const chip = CALL_FILTERS.find(f => f.key === filter) || CALL_FILTERS[0];
+  return calls.filter(c => (!chip.status || c.status === chip.status)
+    && (!needle || normalize(nameOf(c.conversation_id)).includes(needle)));
+}
+
 /** What the row says under the name. */
 function describe(call) {
   const parts = [];
@@ -69,9 +89,10 @@ function describe(call) {
  * @param {object[]} o.conversations
  * @param {function} o.avatarFor - conversation id → image URL or null
  * @param {function} o.onOpen - (conversationId, messageId)
+ * @param {function} [o.onMenu] - the ⋮ — opens the list's menu
  * @returns {HTMLElement}
  */
-export function renderCallsPanel({ calls, conversations, avatarFor, onOpen }) {
+export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMenu }) {
   const byId = new Map(conversations.map(c => [c.id, c]));
   const nameOf = (id) => byId.get(id)?.contact || byId.get(id)?.participants?.find(p => p !== 'DV') || id;
 
@@ -85,15 +106,53 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen }) {
   title.className = 'calls-title';
   title.textContent = 'Chamadas';
   header.appendChild(title);
-  for (const [icon, label] of [[ICON_SEARCH, 'Pesquisar chamadas'], [ICON_MEETBALL, 'Menu']]) {
-    const b = document.createElement('button');
-    b.className = 'calls-header-btn';
-    b.disabled = true;
-    b.setAttribute('aria-label', label);
-    b.innerHTML = icon;
-    header.appendChild(b);
-  }
+  const searchBtn = document.createElement('button');
+  searchBtn.className = 'calls-header-btn';
+  searchBtn.setAttribute('aria-label', 'Pesquisar chamadas');
+  searchBtn.innerHTML = ICON_SEARCH;
+  header.appendChild(searchBtn);
+  const menuBtn = document.createElement('button');
+  menuBtn.className = 'calls-header-btn';
+  menuBtn.setAttribute('aria-label', 'Menu');
+  menuBtn.innerHTML = ICON_MEETBALL;
+  if (onMenu) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); onMenu(); });
+  else menuBtn.disabled = true;
+  header.appendChild(menuBtn);
   panel.appendChild(header);
+
+  // Search by name, and a row of chips — the same idea as the list's tags.
+  const searchRow = document.createElement('div');
+  searchRow.className = 'calls-search';
+  searchRow.hidden = true;
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.className = 'calls-search-input';
+  input.placeholder = 'Pesquisar por nome';
+  input.setAttribute('aria-label', 'Pesquisar chamadas por nome');
+  searchRow.appendChild(input);
+  panel.appendChild(searchRow);
+  searchBtn.addEventListener('click', () => {
+    searchRow.hidden = !searchRow.hidden;
+    if (!searchRow.hidden) input.focus();
+    else { input.value = ''; render(); }
+  });
+
+  const chips = document.createElement('div');
+  chips.className = 'calls-filters';
+  chips.setAttribute('role', 'tablist');
+  for (const f of CALL_FILTERS) {
+    const chip = document.createElement('button');
+    chip.className = `calls-filter${f.key === 'todas' ? ' active' : ''}`;
+    chip.dataset.filter = f.key;
+    chip.setAttribute('role', 'tab');
+    chip.textContent = f.label;
+    chip.addEventListener('click', () => {
+      for (const c of chips.children) c.classList.toggle('active', c === chip);
+      render();
+    });
+    chips.appendChild(chip);
+  }
+  panel.appendChild(chips);
 
   // The row of actions WhatsApp puts on top. None of them can do anything
   // here, and they say so.
@@ -117,10 +176,26 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen }) {
   const list = document.createElement('div');
   list.className = 'calls-list';
   list.setAttribute('role', 'list');
-  for (const { call, count } of groupCalls(calls)) {
-    list.appendChild(renderRow(call, count, nameOf(call.conversation_id), avatarFor(call.conversation_id), onOpen));
-  }
   panel.appendChild(list);
+
+  const empty = document.createElement('p');
+  empty.className = 'calls-empty';
+  empty.textContent = 'Nenhuma chamada com esse filtro.';
+  empty.hidden = true;
+  panel.appendChild(empty);
+
+  function render() {
+    const filter = chips.querySelector('.active')?.dataset.filter || 'todas';
+    const shown = filterCalls(calls, { query: input.value, filter, nameOf });
+    list.replaceChildren();
+    for (const { call, count } of groupCalls(shown)) {
+      list.appendChild(renderRow(call, count, nameOf(call.conversation_id), avatarFor(call.conversation_id), onOpen));
+    }
+    empty.hidden = shown.length > 0;
+    heading.textContent = shown.length === calls.length ? 'Recentes' : `${shown.length} de ${calls.length}`;
+  }
+  input.addEventListener('input', render);
+  render();
 
   const foot = document.createElement('p');
   foot.className = 'calls-foot';

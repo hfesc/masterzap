@@ -244,6 +244,8 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
     el.classList.add('sidebar--calls');
     for (const tab of bottomNav.querySelectorAll('.sidebar-bottom-tab')) tab.classList.toggle('active', tab.dataset.tab === 'calls');
   };
+  /** The same menu, from wherever the button is — the list or the calls screen. */
+  el.toggleMenu = () => toggleSidebarMenu();
   el.showChats = () => {
     el.classList.remove('sidebar--calls');
     for (const tab of bottomNav.querySelectorAll('.sidebar-bottom-tab')) tab.classList.toggle('active', tab.dataset.tab === 'chats');
@@ -277,7 +279,9 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
       sidebarMenuEl.appendChild(btn);
     }
 
-    el.querySelector('.sidebar-header').appendChild(sidebarMenuEl);
+    // In calls mode the list's header is hidden; the menu hangs off the calls header.
+    (el.querySelector('.sidebar--calls .calls-header, .calls-header') && el.classList.contains('sidebar--calls')
+      ? el.querySelector('.calls-header') : el.querySelector('.sidebar-header')).appendChild(sidebarMenuEl);
 
     setTimeout(() => {
       document.addEventListener('click', closeSidebarMenuOnOutside, true);
@@ -290,7 +294,7 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
   }
 
   function closeSidebarMenuOnOutside(e) {
-    if (sidebarMenuEl && !sidebarMenuEl.contains(e.target) && e.target !== menuBtn) {
+    if (sidebarMenuEl && !sidebarMenuEl.contains(e.target) && e.target !== menuBtn && !e.target.closest?.('.calls-header-btn[aria-label="Menu"]')) {
       closeSidebarMenu();
     }
   }
