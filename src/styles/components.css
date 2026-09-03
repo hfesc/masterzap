@@ -1490,3 +1490,8 @@
   font-weight: 500;
   color: var(--WDS-content-default);
 }
+
+/* Two wrappers in a row on the API page: one gap between them, not two. */
+.api-drawer .profile-sections:not(:last-child) {
+  padding-bottom: 0;
+}
