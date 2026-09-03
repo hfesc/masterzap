@@ -1360,9 +1360,13 @@
 
 .api-code {
   position: relative;
-  margin: 8px 16px 12px;
+  margin: 8px 0 12px;
   border-radius: 8px;
   background: var(--WDS-warm-gray-75);
+}
+
+.api-code.inset {
+  margin: 8px 16px 12px;
 }
 
 .api-code pre {
@@ -1473,4 +1477,9 @@
 
 .profile-section a:hover {
   text-decoration: underline;
+}
+
+/* Second wrapper on the API page: no double gap against the prose above. */
+.api-sections {
+  padding-top: 0;
 }

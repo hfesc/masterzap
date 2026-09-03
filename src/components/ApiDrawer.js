@@ -20,9 +20,9 @@ const ICON_CODE_64 = ICON_CODE.replace('width="20" height="20"', 'width="36" hei
 const ICON_COPY = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 /** A block of text with a button that copies it. */
-function codeBlock(text, { onCopy, label = 'Copiar' } = {}) {
+function codeBlock(text, { onCopy, label = 'Copiar', inset = false } = {}) {
   const wrap = document.createElement('div');
-  wrap.className = 'api-code';
+  wrap.className = inset ? 'api-code inset' : 'api-code';
   const pre = document.createElement('pre');
   pre.textContent = text;
   wrap.appendChild(pre);
@@ -97,7 +97,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   sub.textContent = API_INTRO.sub;
   top.appendChild(sub);
   body.appendChild(top);
-  body.appendChild(codeBlock(MCP_URL, { onCopy, label: 'Copiar URL do MCP' }));
+  body.appendChild(codeBlock(MCP_URL, { onCopy, label: 'Copiar URL do MCP', inset: true }));
 
   const divider = document.createElement('div');
   divider.className = 'contact-info-divider';
@@ -105,6 +105,11 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
 
   // The prose: what it is, fair use, bulk.
   renderProfileSections(body, API_SECTIONS, [], null, {});
+
+  // The hand-built sections share the prose sections' wrapper, and its margins.
+  const custom = document.createElement('div');
+  custom.className = 'profile-sections api-sections';
+  body.appendChild(custom);
 
   // The table, from the same source the rewrites follow.
   const routesEl = section('A API estática');
@@ -130,7 +135,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     list.appendChild(item);
   }
   routesEl.appendChild(list);
-  body.appendChild(routesEl);
+  custom.appendChild(routesEl);
 
   // The MCP: what it offers, the limits, and how to plug it in.
   const mcpEl = section('O MCP');
@@ -149,7 +154,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   limits.className = 'api-limits';
   limits.textContent = `Limites por cliente: ${MCP_LIMITS.perMinute}/min · ${MCP_LIMITS.perDay}/dia. Teto do site: ${MCP_LIMITS.globalPerDay.toLocaleString('pt-BR')}/dia.`;
   mcpEl.appendChild(limits);
-  body.appendChild(mcpEl);
+  custom.appendChild(mcpEl);
 
   for (const client of MCP_CLIENTS) {
     const el = section(`Como usar no ${client.name}`);
@@ -163,7 +168,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     }
     el.appendChild(ol);
     el.appendChild(codeBlock(client.code, { onCopy }));
-    body.appendChild(el);
+    custom.appendChild(el);
   }
 
   renderProfileSections(body, [], [], API_CREDITS, {});
