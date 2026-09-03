@@ -11,20 +11,23 @@
 
 import { renderProfileSections } from './ProfileSections.js';
 import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_EXAMPLES, MCP_EXAMPLES, API_CREDITS } from '../lib/api-content.js';
-import { API_ROUTES, API_BASE, SITE_ORIGIN, MCP_URL, MCP_LIMITS } from '../lib/api-routes.js';
+import { API_ROUTES, API_BASE, SITE_ORIGIN, MCP_URL, MCP_LIMITS, slugOf } from '../lib/api-routes.js';
 import { copyText } from '../lib/utils.js';
+import { highlight } from '../lib/highlight.js';
 import { parseLinks } from '../lib/profile-content.js';
 
 export const ICON_CODE = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 const ICON_CODE_64 = ICON_CODE.replace('width="20" height="20"', 'width="36" height="36"').replace('stroke-width="2.6"', 'stroke-width="3"');
+const ICON_LINK = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
 const ICON_COPY = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 /** A block of text with a button that copies it. */
-function codeBlock(text, { onCopy, label = 'Copiar', inset = false } = {}) {
+function codeBlock(text, { onCopy, label = 'Copiar', inset = false, lang = 'text' } = {}) {
   const wrap = document.createElement('div');
   wrap.className = inset ? 'api-code inset' : 'api-code';
   const pre = document.createElement('pre');
-  pre.textContent = text;
+  // Escaped by highlight() before any span is added — safe innerHTML
+  pre.innerHTML = highlight(text, lang);
   wrap.appendChild(pre);
   const btn = document.createElement('button');
   btn.className = 'api-copy';
@@ -40,12 +43,29 @@ function codeBlock(text, { onCopy, label = 'Copiar', inset = false } = {}) {
   return wrap;
 }
 
+let onAnchorCopy = null;
+
+/** A titled section whose title carries its own address. */
 function section(title) {
   const el = document.createElement('div');
   el.className = 'profile-section';
+  el.id = `api-${slugOf(title)}`;
   const h3 = document.createElement('h3');
-  h3.className = 'profile-section-title';
-  h3.textContent = title;
+  h3.className = 'profile-section-title has-anchor';
+  const text = document.createElement('span');
+  text.textContent = title;
+  h3.appendChild(text);
+  const link = document.createElement('button');
+  link.className = 'api-anchor';
+  link.setAttribute('aria-label', `Copiar link desta seção: ${title}`);
+  link.setAttribute('title', 'Copiar link desta seção');
+  link.innerHTML = ICON_LINK;
+  link.addEventListener('click', async () => {
+    const url = `${SITE_ORIGIN}/#/api/${slugOf(title)}`;
+    const ok = await copyText(url);
+    onAnchorCopy?.(ok);
+  });
+  h3.appendChild(link);
   el.appendChild(h3);
   return el;
 }
@@ -57,8 +77,9 @@ function section(title) {
  * @param {function} [options.onCopy] - (ok: boolean)
  * @returns {{ destroy: function }}
  */
-export function showApiDrawer(container, { onClose, onCopy } = {}) {
+export function showApiDrawer(container, { onClose, onCopy, section: wanted } = {}) {
   container.querySelector('.api-drawer')?.remove();
+  onAnchorCopy = onCopy;
   const sidebar = container.querySelector('.sidebar');
 
   const drawer = document.createElement('div');
@@ -103,8 +124,14 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   divider.className = 'contact-info-divider';
   body.appendChild(divider);
 
-  // The prose: what it is, fair use, bulk.
+  // The prose: what it is, fair use, bulk — with the same anchors.
   renderProfileSections(body, API_SECTIONS, [], null, {});
+  for (const h3 of body.querySelectorAll('.profile-section-title:not(.has-anchor)')) {
+    const title = h3.textContent;
+    const built = section(title);
+    h3.parentElement.id = built.id;
+    h3.replaceWith(built.firstChild);
+  }
 
   // The hand-built sections share the prose sections' wrapper, and its margins.
   const custom = document.createElement('div');
@@ -169,7 +196,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
       ol.appendChild(li);
     }
     el.appendChild(ol);
-    el.appendChild(codeBlock(client.code, { onCopy }));
+    el.appendChild(codeBlock(client.code, { onCopy, lang: client.lang }));
     custom.appendChild(el);
   }
 
@@ -179,7 +206,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     h.className = 'api-example-title';
     h.textContent = ex.title;
     apiEx.appendChild(h);
-    apiEx.appendChild(codeBlock(ex.code, { onCopy }));
+    apiEx.appendChild(codeBlock(ex.code, { onCopy, lang: ex.lang }));
   }
   custom.appendChild(apiEx);
 
@@ -198,7 +225,12 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   const navRail = container.querySelector('.nav-rail');
   if (navRail && navRail.nextSibling) container.insertBefore(drawer, navRail.nextSibling);
   else container.appendChild(drawer);
-  requestAnimationFrame(() => { drawer.classList.add('open'); body.scrollTop = 0; });
+  requestAnimationFrame(() => {
+    drawer.classList.add('open');
+    const target = wanted && drawer.querySelector(`#api-${wanted}`);
+    if (target) target.scrollIntoView({ block: 'start' });
+    else body.scrollTop = 0;
+  });
 
   function destroy() {
     drawer.remove();

@@ -30,8 +30,9 @@ import { join } from 'node:path';
 import { getContactProfile, VORCARO_PROFILE, SOURCES } from '../src/lib/profile-content.js';
 import { SETTINGS_CONTENT } from '../src/lib/settings-content.js';
 import { PEOPLE } from '../src/lib/people-content.js';
-import { API_ROUTES, API_BASE, BULK_RELEASE, MCP_LIMITS, MCP_URL } from '../src/lib/api-routes.js';
+import { API_ROUTES, API_BASE, BULK_RELEASE, MCP_LIMITS, MCP_URL, slugOf } from '../src/lib/api-routes.js';
 import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_EXAMPLES, MCP_EXAMPLES, API_CREDITS } from '../src/lib/api-content.js';
+
 import {
   ROOT, SITE, REPO, TIMEZONE, UTC_OFFSET,
   loadEntries, loadMessages, sourceOf, contactOf, whoIs, createResolver, mentionsOf, createLocator, isPaged, PREVIEW_MESSAGES,
@@ -413,22 +414,22 @@ function apiPage() {
   body.push(`<h1>${escapeHtml(API_INTRO.title)}</h1>`, `<p class="role">${escapeHtml(API_INTRO.sub)}</p>`);
   body.push(`<p><b>MCP:</b> <code>${MCP_URL}</code></p>`);
   for (const s of API_SECTIONS) {
-    body.push(`<h2>${escapeHtml(s.title)}</h2>`);
+    body.push(`<h2 id="api-${slugOf(s.title)}">${escapeHtml(s.title)}</h2>`);
     for (const p of s.paragraphs) body.push(`<p>${linksToHtml(p.text)}</p>`);
   }
-  body.push('<h2>A API estática</h2>', `<p>Base: <code>${SITE}${API_BASE}</code>. Cada rota é um arquivo na CDN; a resposta é sempre JSON.</p>`, '<table><thead><tr><th>Rota</th><th>O que devolve</th><th>Exemplo</th></tr></thead><tbody>');
+  body.push('<h2 id="api-a-api-estatica">A API estática</h2>', `<p>Base: <code>${SITE}${API_BASE}</code>. Cada rota é um arquivo na CDN; a resposta é sempre JSON.</p>`, '<table><thead><tr><th>Rota</th><th>O que devolve</th><th>Exemplo</th></tr></thead><tbody>');
   for (const r of API_ROUTES) {
     body.push(`<tr><td><code>${escapeHtml(r.route)}</code></td><td>${escapeHtml(r.description)}</td><td><a href="${API_BASE}${escapeHtml(r.example)}">${escapeHtml(r.example)}</a></td></tr>`);
   }
   body.push('</tbody></table>');
-  body.push('<h2>O MCP</h2>', '<ul>', ...MCP_TOOLS.map(([t, w]) => `<li><code>${t}</code> — ${escapeHtml(w)}</li>`), '</ul>');
+  body.push('<h2 id="api-o-mcp">O MCP</h2>', '<ul>', ...MCP_TOOLS.map(([t, w]) => `<li><code>${t}</code> — ${escapeHtml(w)}</li>`), '</ul>');
   body.push(`<p><b>Limites por cliente:</b> ${MCP_LIMITS.perMinute}/min · ${MCP_LIMITS.perDay}/dia. Teto do site: ${MCP_LIMITS.globalPerDay.toLocaleString('pt-BR')}/dia. Ao passar: 429 com Retry-After.</p>`);
   for (const c of MCP_CLIENTS) {
-    body.push(`<h3>Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
+    body.push(`<h3 id="api-${slugOf('Como usar no ' + c.name)}">Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
   }
-  body.push('<h2>Exemplos com a API</h2>');
+  body.push('<h2 id="api-exemplos-com-a-api">Exemplos com a API</h2>');
   for (const ex of API_EXAMPLES) body.push(`<p><b>${escapeHtml(ex.title)}</b></p>`, `<pre><code>${escapeHtml(ex.code)}</code></pre>`);
-  body.push('<h2>Exemplos com o MCP</h2>', '<p>Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.</p>', '<ul>', ...MCP_EXAMPLES.map(q => `<li>${escapeHtml(q)}</li>`), '</ul>');
+  body.push('<h2 id="api-exemplos-com-o-mcp">Exemplos com o MCP</h2>', '<p>Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.</p>', '<ul>', ...MCP_EXAMPLES.map(q => `<li>${escapeHtml(q)}</li>`), '</ul>');
   body.push(`<p class="how">${linksToHtml(API_CREDITS)}</p>`);
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'WebAPI', '@id': `${SITE}/api`, url: `${SITE}/api`,

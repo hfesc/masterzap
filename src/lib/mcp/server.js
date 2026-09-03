@@ -42,7 +42,7 @@ export function registerMasterwhats(server, { fetch: fetchImpl = globalThis.fetc
 
   server.registerTool('list_conversations', {
     title: 'Listar conversas',
-    description: 'As 24 conversas dos celulares apreendidos de Daniel Vorcaro: id, contato, período, número de mensagens, fonte. Comece por aqui para saber os ids.',
+    description: 'Todas as conversas dos celulares apreendidos de Daniel Vorcaro: id, contato, período, número de mensagens, fonte. Comece por aqui para saber os ids.',
     inputSchema: z.object({}),
   }, async () => {
     const { conversations } = await get('/conversations');

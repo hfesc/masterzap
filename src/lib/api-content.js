@@ -60,17 +60,19 @@ export const MCP_CLIENTS = [
     name: 'Claude Code',
     steps: ['Uma linha no terminal:'],
     code: `claude mcp add --transport http masterwhats ${MCP_URL}`,
+    lang: 'shell',
   },
   {
     name: 'Cursor, Windsurf e outros',
     steps: ['No arquivo de configuração de MCP do cliente (`mcp.json` ou equivalente):'],
     code: `{\n  "mcpServers": {\n    "masterwhats": { "url": "${MCP_URL}" }\n  }\n}`,
+    lang: 'json',
   },
 ];
 
 /** What the MCP offers, in the words a person reads before connecting. */
 export const MCP_TOOLS = [
-  ['list_conversations', 'as 24 conversas, com ids'],
+  ['list_conversations', 'todas as conversas, com ids'],
   ['get_conversation', 'uma conversa e seus dias'],
   ['get_messages', 'mensagens entre duas datas, com página do laudo e link'],
   ['search', 'busca numa conversa ou em todas'],
@@ -81,14 +83,14 @@ export const MCP_TOOLS = [
 
 /** Things to paste in a terminal. Every route of the table has one. */
 export const API_EXAMPLES = [
-  { title: 'As conversas e seus ids', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations | jq '.conversations[] | {id, contact, total_messages}'` },
-  { title: 'Os dias de uma conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes | jq '.dates[] | .date'` },
-  { title: 'As mensagens de um dia, com página do laudo', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes/days/2025-11-15 | jq '.messages[] | {time, sender, content, source_page}'` },
-  { title: 'Um mês da conversa grande', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/martha-graeff/months/2024-12 | jq '.messages | length'` },
-  { title: 'Buscar do seu lado, no índice da conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/ciro-soares/search-index | jq '.[] | select(.content | test("gonet"; "i")) | {id, date, content}'` },
-  { title: 'As chamadas de um contato', code: `curl -s ${SITE_ORIGIN}${API_BASE}/calls | jq '.calls[] | select(.conversation_id == "fabio-faria")'` },
-  { title: 'Toda menção a uma pessoa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/people | jq '.people[] | select(.slug == "paulo-gonet") | .conversations[] | {contact, n: (.mentions | length)}'` },
-  { title: 'Em Python', code: `import requests\nr = requests.get("${SITE_ORIGIN}${API_BASE}/calls").json()\nprint(len(r["calls"]), "chamadas;", r["calls"][0])` },
+  { title: 'As conversas e seus ids', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations | jq '.conversations[] | {id, contact, total_messages}'` , lang: 'shell' },
+  { title: 'Os dias de uma conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes | jq '.dates[] | .date'` , lang: 'shell' },
+  { title: 'As mensagens de um dia, com página do laudo', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/alexandre-de-moraes/days/2025-11-15 | jq '.messages[] | {time, sender, content, source_page}'` , lang: 'shell' },
+  { title: 'Um mês da conversa grande', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/martha-graeff/months/2024-12 | jq '.messages | length'` , lang: 'shell' },
+  { title: 'Buscar do seu lado, no índice da conversa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/conversations/ciro-soares/search-index | jq '.[] | select(.content | test("gonet"; "i")) | {id, date, content}'` , lang: 'shell' },
+  { title: 'As chamadas de um contato', code: `curl -s ${SITE_ORIGIN}${API_BASE}/calls | jq '.calls[] | select(.conversation_id == "fabio-faria")'` , lang: 'shell' },
+  { title: 'Toda menção a uma pessoa', code: `curl -s ${SITE_ORIGIN}${API_BASE}/people | jq '.people[] | select(.slug == "paulo-gonet") | .conversations[] | {contact, n: (.mentions | length)}'` , lang: 'shell' },
+  { title: 'Em Python', lang: 'python', code: `import requests\nr = requests.get("${SITE_ORIGIN}${API_BASE}/calls").json()\nprint(len(r["calls"]), "chamadas;", r["calls"][0])` },
 ];
 
 /** Things to ask a model once the MCP is connected. */

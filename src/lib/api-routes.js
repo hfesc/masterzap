@@ -20,7 +20,7 @@ export const API_ROUTES = [
   {
     route: '/conversations',
     file: '/data/conversations.json',
-    description: 'As 24 conversas: id, contato, período, contagens, fonte e, para as do laudo, o documento de origem.',
+    description: 'Todas as conversas: id, contato, período, contagens, fonte e, para as do laudo, o documento de origem.',
     example: '/conversations',
   },
   {
@@ -103,6 +103,9 @@ export function vercelRewrites() {
 
 /** Full URL of a route on the site. */
 export const apiUrl = (route, params = {}, origin = SITE_ORIGIN) => `${origin}${API_BASE}${fill(route, params)}`;
+
+/** "Como usar no Claude Code" → "como-usar-no-claude-code": a section's address. */
+export const slugOf = (title) => title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 /** Limits the MCP enforces; documented from here so the page cannot drift. */
 export const MCP_LIMITS = {
