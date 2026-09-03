@@ -97,7 +97,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   sub.textContent = API_INTRO.sub;
   top.appendChild(sub);
   body.appendChild(top);
-  body.appendChild(codeBlock(MCP_URL, { onCopy, label: 'Copiar URL do MCP', inset: true }));
+  body.appendChild(codeBlock(MCP_URL, { onCopy, inset: true }));
 
   const divider = document.createElement('div');
   divider.className = 'contact-info-divider';
@@ -188,7 +188,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   intro.className = 'profile-section-text';
   intro.textContent = 'Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.';
   mcpEx.appendChild(intro);
-  for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy, label: 'Copiar pergunta' }));
+  for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy }));
   custom.appendChild(mcpEx);
 
   renderProfileSections(body, [], [], API_CREDITS, {});
