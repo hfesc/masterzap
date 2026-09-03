@@ -32,7 +32,7 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
   el.innerHTML = `
     <div class="sidebar-header">
       <span class="sidebar-header-title">MasterWhats</span>
-      <button class="sidebar-menu-btn" aria-label="Menu">${ICON_MEETBALL}</button>
+      <button class="sidebar-menu-btn" aria-label="Menu" data-tip="Menu">${ICON_MEETBALL}</button>
     </div>
     <div class="sidebar-search">
       <div class="sidebar-search-wrapper">

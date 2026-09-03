@@ -68,7 +68,7 @@ function section(title) {
   const link = document.createElement('button');
   link.className = 'api-anchor';
   link.setAttribute('aria-label', `Copiar link desta seção: ${title}`);
-  link.setAttribute('title', 'Copiar link desta seção');
+  link.setAttribute('data-tip', 'Copiar link');
   link.innerHTML = ICON_LINK;
   link.addEventListener('click', async () => {
     const url = `${SITE_ORIGIN}/#/api/${slugOf(title)}`;

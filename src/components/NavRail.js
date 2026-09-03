@@ -40,7 +40,7 @@ export function renderNavRail(container, { avatarSrc, onSettings, onChat, onCall
     if (item.active) btn.classList.add('active');
     if (!item.enabled) btn.classList.add('disabled');
     btn.setAttribute('aria-label', item.label);
-    btn.setAttribute('title', item.label);
+    btn.setAttribute('data-tip', item.label);
     btn.innerHTML = item.icon; // Static SVG
     if (item.active && onChat) btn.addEventListener('click', onChat);
     if (item.calls && onCalls) btn.addEventListener('click', onCalls);
@@ -56,6 +56,7 @@ export function renderNavRail(container, { avatarSrc, onSettings, onChat, onCall
   const settingsBtn = document.createElement('button');
   settingsBtn.className = 'nav-rail-btn';
   settingsBtn.setAttribute('aria-label', 'Sobre');
+  settingsBtn.setAttribute('data-tip', 'Sobre');
   settingsBtn.setAttribute('title', 'Sobre');
   settingsBtn.innerHTML = ICON_SETTINGS; // Static SVG
   if (onSettings) settingsBtn.addEventListener('click', onSettings);

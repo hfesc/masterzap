@@ -51,7 +51,7 @@ export function showSettingsDrawer(container, { onClose, onApi, actions = {} } =
     const apiBtn = document.createElement('button');
     apiBtn.className = 'profile-drawer-action';
     apiBtn.setAttribute('aria-label', 'API/MCP');
-    apiBtn.setAttribute('title', 'API/MCP — os mesmos dados, para scripts e modelos');
+    apiBtn.setAttribute('data-tip', 'API/MCP');
     apiBtn.innerHTML = ICON_CODE;
     apiBtn.addEventListener('click', onApi);
     header.appendChild(apiBtn);

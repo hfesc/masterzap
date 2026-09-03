@@ -113,13 +113,14 @@ export function renderCallsPanel({ calls, conversations, avatarFor, onOpen, onMe
     b.className = 'calls-header-btn';
     b.disabled = true;
     b.setAttribute('aria-label', label);
-    b.setAttribute('title', label);
+    b.setAttribute('data-tip', label);
     b.innerHTML = icon;
     header.appendChild(b);
   }
   const menuBtn = document.createElement('button');
   menuBtn.className = 'calls-header-btn';
   menuBtn.setAttribute('aria-label', 'Menu');
+  menuBtn.setAttribute('data-tip', 'Menu');
   menuBtn.innerHTML = ICON_MEETBALL;
   if (onMenu) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); onMenu(); });
   else menuBtn.disabled = true;
