@@ -1371,7 +1371,7 @@
 
 .api-code pre {
   margin: 0;
-  padding: 12px 14px 4px;
+  padding: 14px 14px 12px;
   font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-content-default);
   white-space: pre-wrap;
@@ -1382,7 +1382,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px 6px 14px;
+  padding: 0 6px 8px 14px;
 }
 
 .api-copy {
@@ -1393,7 +1393,7 @@
   border: none;
   border-radius: 6px;
   background: none;
-  color: var(--WDS-accent);
+  color: var(--WDS-content-deemphasized);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
