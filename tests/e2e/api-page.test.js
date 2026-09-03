@@ -9,7 +9,6 @@ const openFromMenu = async (page) => {
   await expect(page.locator('.conversation-item').first()).toBeVisible();
   await page.locator('.sidebar-menu-btn').click();
   const item = page.locator('.sidebar-dropdown-item', { hasText: 'API/MCP' });
-  await expect(item.locator('.sidebar-dropdown-icon svg')).toBeVisible();
   await item.click();
   await expect(page.locator('.api-drawer')).toBeVisible();
 };

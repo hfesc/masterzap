@@ -8,7 +8,6 @@ import { formatTime, escapeHtml, formatNumber, formatRelativeDate } from '../lib
 
 import { ICON_SEARCH as SEARCH_ICON, ICON_MEETBALL } from '../lib/icons.js';
 import { defaultAvatarSvg } from '../lib/avatar.js';
-import { ICON_CODE } from './ApiDrawer.js';
 
 /**
  * The two conversations pinned under "Favoritas" — the leaks this project is
@@ -262,7 +261,7 @@ export function renderSidebar(container, { conversations, onSelect, onProfile, o
     const items = [
       { label: 'Perfil', action: onProfile, enabled: !!onProfile },
       { label: 'Exportar tudo (.zip)', action: onExportAll, enabled: !!onExportAll },
-      { label: 'API/MCP', icon: ICON_CODE, action: onApi, enabled: !!onApi },
+      { label: 'API/MCP', action: onApi, enabled: !!onApi },
       { label: 'Sobre o MasterWhats', action: onAbout, enabled: !!onAbout },
     ];
 
