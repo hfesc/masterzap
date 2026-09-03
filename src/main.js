@@ -133,12 +133,16 @@ async function init() {
 
   /** Close the API/MCP page and restore sidebar + main area. */
   function closeApi() {
+    const wasOpen = !!activeApiDrawer;
     if (activeApiDrawer) {
       const d = activeApiDrawer;
       activeApiDrawer = null;
       d.destroy();
     }
     restoreMainArea();
+    // The page lives at #/api; leaving it by any door leaves the address too,
+    // or the next "open" would navigate to where we already are and do nothing.
+    if (wasOpen && router.getCurrentRoute().route === 'api') router.navigate('home');
   }
 
   /** Close the settings drawer and restore sidebar + main area. */
@@ -408,8 +412,9 @@ async function init() {
   function openProfile() {
     if (activeProfileDrawer) { closeProfile(); return; }
 
-    // Close settings if open
+    // One drawer at a time
     closeSettings();
+    closeApi();
     // Close chat drawers
     closeRightDrawers();
 
@@ -463,8 +468,9 @@ async function init() {
   function openSettings() {
     if (activeSettingsDrawer) { closeSettings(); return; }
 
-    // Close profile if open
+    // One drawer at a time
     closeProfile();
+    closeApi();
     // Close chat drawers
     closeRightDrawers();
 
@@ -472,6 +478,7 @@ async function init() {
 
     activeSettingsDrawer = showSettingsDrawer(container, {
       onClose: closeSettings,
+      onApi: () => (router.getCurrentRoute().route === 'api' ? openApi() : router.navigate('api')),
       actions: drawerActions(closeSettings),
     });
   }
@@ -479,14 +486,19 @@ async function init() {
   const SVG_CODE = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 
   /** The API/MCP page, in the settings drawer's place. Lives at #/api. */
-  function openApi() {
-    if (activeApiDrawer) return;
+  function openApi(section) {
+    if (activeApiDrawer) {
+      const target = section && document.getElementById(`api-${section}`);
+      if (target) target.scrollIntoView({ block: 'start' });
+      return;
+    }
     closeProfile();
     closeSettings();
     closeRightDrawers();
     hideMainAreaWithPlaceholder(SVG_CODE, 'API/MCP');
     activeApiDrawer = showApiDrawer(container, {
-      onClose: () => { closeApi(); if (router.getCurrentRoute().route === 'api') router.navigate('home'); },
+      section,
+      onClose: closeApi,
       // The drawer covers the main area on a phone; the toast goes where the eyes are.
       onCopy: (ok) => showToast(activeApiDrawer?.element || mainArea, ok ? 'Copiado' : 'Não foi possível copiar'),
     });
@@ -519,7 +531,7 @@ async function init() {
     onExportAll: () => downloadFile(EXPORT_ALL_URL),
     onCalls: () => router.navigate('calls'),
     onChats: () => router.navigate('home'),
-    onApi: () => router.navigate('api'),
+    onApi: () => (router.getCurrentRoute().route === 'api' ? openApi() : router.navigate('api')),
     onSelect: (id) => {
       // Close profile/settings if open before navigating
       closeProfile();
@@ -549,7 +561,10 @@ async function init() {
 
   const router = new HashRouter();
   router.on('home', () => { sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); });
-  router.on('api', () => { sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); openApi(); });
+  router.on('api', (section) => {
+    if (activeApiDrawer) { openApi(section); return; }
+    sidebar.showChats?.(); navRail.setActive?.('chats'); showEmptyState(); openApi(section);
+  });
 
   // The calls screen takes the list's place; the log is one file, fetched
   // the first time it is asked for.
@@ -564,6 +579,7 @@ async function init() {
       conversations: store.getConversations(),
       avatarFor: (convId) => AVATARS[convId] || null,
       onOpen: (convId, messageId) => router.navigate('chat', convId, messageId),
+      onMenu: () => sidebar.toggleMenu?.(),
     });
     sidebar.showCalls?.(panel);
     navRail.setActive?.('calls');

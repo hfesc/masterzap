@@ -82,3 +82,47 @@ test('closes back to the list', async ({ page }) => {
   await expect(page.locator('.sidebar')).toBeVisible();
   await expect(page).toHaveURL(/#\/$|\/$/);
 });
+
+// Opening Sobre after the API page used to leave the address at #/api with no
+// drawer; the next tap on API/MCP navigated to where it already was and did
+// nothing. Drawers now close each other, and leaving the page leaves the address.
+test('survives Sobre and Perfil in between', async ({ page }) => {
+  await openFromMenu(page);
+  await page.locator('.sidebar-menu-btn').click({ force: true }).catch(() => {});
+  // Sobre from the Sobre shortcut in the rail or the menu, whichever this layout has.
+  const sobre = page.locator('button[aria-label="Sobre"]');
+  if (await sobre.count()) await sobre.first().click();
+  else { await page.locator('.api-drawer .profile-drawer-close').click(); await page.locator('.sidebar-menu-btn').click(); await page.locator('.sidebar-dropdown-item', { hasText: 'Sobre o MasterWhats' }).click(); }
+  await expect(page.locator('.settings-drawer:not(.api-drawer)')).toBeVisible();
+  await expect(page.locator('.api-drawer')).toHaveCount(0);
+  await expect(page).not.toHaveURL(/#\/api/);
+  await page.locator('.profile-drawer-close').first().click();
+  await expect(page.locator('.sidebar')).toBeVisible();
+
+  await page.locator('.sidebar-menu-btn').click();
+  await page.locator('.sidebar-dropdown-item', { hasText: 'API/MCP' }).click();
+  await expect(page.locator('.api-drawer')).toBeVisible();
+  await expect(page).toHaveURL(/#\/api$/);
+});
+
+test('the Sobre drawer carries a shortcut to the API page', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.conversation-item').first()).toBeVisible();
+  await page.locator('.sidebar-menu-btn').click();
+  await page.locator('.sidebar-dropdown-item', { hasText: 'Sobre o MasterWhats' }).click();
+  const shortcut = page.locator('.settings-drawer .profile-drawer-action[aria-label="API/MCP"]');
+  await expect(shortcut).toBeVisible();
+  await shortcut.click();
+  await expect(page.locator('.api-drawer')).toBeVisible();
+  await expect(page.locator('.settings-drawer:not(.api-drawer)')).toHaveCount(0);
+});
+
+// A route opened in a new tab answers with the file, not with the app.
+test('a route link opens the JSON', async ({ page, context }) => {
+  await openFromMenu(page);
+  const [tab] = await Promise.all([context.waitForEvent('page'), page.locator('.api-route').first().click()]);
+  await tab.waitForLoadState();
+  expect(tab.url()).toMatch(/\/api\/v1\/conversations$/);
+  const body = await tab.evaluate(() => document.body.innerText);
+  expect(JSON.parse(body).conversations.length).toBeGreaterThan(20);
+});

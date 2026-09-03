@@ -1495,3 +1495,109 @@
 .api-drawer .profile-sections:not(:last-child) {
   padding-bottom: 0;
 }
+
+/* An action at the right of a drawer title (the API/MCP shortcut on "Sobre"). */
+.profile-drawer-action {
+  margin-left: auto;
+  display: flex;
+  padding: 8px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--WDS-content-deemphasized);
+  cursor: pointer;
+}
+
+.profile-drawer-action:hover {
+  background: var(--WDS-surface-highlight);
+  color: var(--WDS-accent);
+}
+
+/* Syntax colours for the snippets — muted, on the grey box. */
+.hl-command { color: var(--WDS-green-700); font-weight: 600; }
+.hl-flag { color: var(--WDS-content-deemphasized); }
+.hl-string { color: #a35a00; }
+.hl-url { color: var(--WDS-cobalt-400); }
+.hl-key { color: #5b3fa0; }
+.hl-number { color: #0b6e4f; }
+.hl-keyword { color: #a3145a; font-weight: 500; }
+.hl-comment { color: var(--WDS-content-deemphasized); font-style: italic; }
+
+/* Section titles on the API page carry a link; it shows on hover, always on touch. */
+.profile-section-title.has-anchor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-anchor {
+  display: flex;
+  padding: 4px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--WDS-content-deemphasized);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.has-anchor:hover .api-anchor,
+.api-anchor:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .api-anchor { opacity: 0.6; }
+}
+
+/* Calls: search and chips under the header, like the list's tags. */
+.calls-header {
+  position: relative;
+}
+
+.calls-search {
+  padding: 0 16px 8px;
+}
+
+.calls-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--WDS-warm-gray-75);
+  font: inherit;
+  color: var(--WDS-content-default);
+}
+
+.calls-filters {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 8px;
+  overflow-x: auto;
+}
+
+.calls-filter {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--WDS-lines-outline-deemphasized);
+  border-radius: 999px;
+  background: var(--WDS-white);
+  color: var(--WDS-content-deemphasized);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.calls-filter.active {
+  border-color: transparent;
+  background: var(--WDS-green-100, #d9fdd3);
+  color: var(--WDS-green-700, #15803d);
+  font-weight: 500;
+}
+
+.calls-empty {
+  padding: 16px;
+  color: var(--WDS-content-deemphasized);
+  font-size: 14px;
+}
