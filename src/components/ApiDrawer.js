@@ -27,14 +27,17 @@ const LANG_LABEL = { shell: 'bash', json: 'JSON', python: 'Python', r: 'R', text
 function codeBlock(text, { onCopy, label = 'Copiar', inset = false, lang = 'text' } = {}) {
   const wrap = document.createElement('div');
   wrap.className = inset ? 'api-code inset' : 'api-code';
-  const strip = document.createElement('div');
-  strip.className = 'api-code-lang';
-  strip.textContent = LANG_LABEL[lang] || lang;
-  wrap.appendChild(strip);
   const pre = document.createElement('pre');
   // Escaped by highlight() before any span is added — safe innerHTML
   pre.innerHTML = highlight(text, lang);
   wrap.appendChild(pre);
+  // One row under the code: the language at the left, the copy at the right.
+  const foot = document.createElement('div');
+  foot.className = 'api-code-foot';
+  const langEl = document.createElement('span');
+  langEl.className = 'api-code-lang';
+  langEl.textContent = LANG_LABEL[lang] || lang;
+  foot.appendChild(langEl);
   const btn = document.createElement('button');
   btn.className = 'api-copy';
   btn.setAttribute('aria-label', label);
@@ -45,7 +48,8 @@ function codeBlock(text, { onCopy, label = 'Copiar', inset = false, lang = 'text
     btn.querySelector('span').textContent = ok ? 'Copiado' : 'Não copiou';
     setTimeout(() => { btn.querySelector('span').textContent = label; }, 1500);
   });
-  wrap.appendChild(btn);
+  foot.appendChild(btn);
+  wrap.appendChild(foot);
   return wrap;
 }
 

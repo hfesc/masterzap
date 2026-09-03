@@ -1371,28 +1371,36 @@
 
 .api-code pre {
   margin: 0;
-  padding: 10px 14px 40px;
+  padding: 12px 14px 4px;
   font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-content-default);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
+.api-code-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 6px 14px;
+}
+
 .api-copy {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
   border: none;
   border-radius: 6px;
-  background: var(--WDS-white);
+  background: none;
   color: var(--WDS-accent);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
+}
+
+.api-copy:hover {
+  background: var(--WDS-surface-highlight);
 }
 
 .api-routes {
@@ -1602,9 +1610,8 @@
   font-size: 14px;
 }
 
-/* The language of a snippet, on a strip at the top of the box. */
+/* The language of a snippet, in the footer row, left of the copy. */
 .api-code-lang {
-  padding: 6px 14px 0;
   font: 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: var(--WDS-content-deemphasized);
   text-transform: uppercase;

@@ -335,8 +335,8 @@ ${JSON.stringify(jsonLd, null, 2)}
   ul.people li { margin: 6px 0; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid #d1d7db; }
-  pre { position: relative; background: #fff; padding: 28px 12px 12px; border-radius: 8px; overflow-x: auto; font-size: 13.5px; }
-  pre[data-lang]::before { content: attr(data-lang); position: absolute; top: 6px; left: 12px; font: 11px/1 ui-monospace, monospace; color: #667781; text-transform: uppercase; letter-spacing: .04em; }
+  pre { position: relative; background: #fff; padding: 12px 12px 28px; border-radius: 8px; overflow-x: auto; font-size: 13.5px; }
+  pre[data-lang]::after { content: attr(data-lang); position: absolute; bottom: 8px; left: 12px; font: 11px/1 ui-monospace, monospace; color: #667781; text-transform: uppercase; letter-spacing: .04em; }
   li { margin: 6px 0; }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 </style>
