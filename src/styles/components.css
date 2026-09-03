@@ -1398,14 +1398,14 @@
 .api-routes {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
 .api-route {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 10px 12px;
   border-radius: 8px;
   background: var(--WDS-warm-gray-75);
   color: inherit;
@@ -1433,7 +1433,7 @@
 
 .api-tools,
 .api-steps {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   padding-left: 20px;
 }
 
@@ -1485,7 +1485,7 @@
 }
 
 .api-example-title {
-  margin: 10px 0 0;
+  margin: 16px 0 6px;
   font-size: 13px;
   font-weight: 500;
   color: var(--WDS-content-default);

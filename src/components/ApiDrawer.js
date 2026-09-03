@@ -114,6 +114,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   // The table, from the same source the rewrites follow.
   const routesEl = section('A API estática');
   const lead = document.createElement('p');
+  lead.className = 'profile-section-text';
   // Static content through parseLinks — safe innerHTML
   lead.innerHTML = parseLinks(`Base: \`${SITE_ORIGIN}${API_BASE}\`. Toque numa rota para abrir o exemplo.`);
   routesEl.appendChild(lead);
@@ -152,7 +153,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
   }
   mcpEl.appendChild(tools);
   const limits = document.createElement('p');
-  limits.className = 'api-limits';
+  limits.className = 'profile-section-text api-limits';
   limits.textContent = `Limites por cliente: ${MCP_LIMITS.perMinute}/min · ${MCP_LIMITS.perDay}/dia. Teto do site: ${MCP_LIMITS.globalPerDay.toLocaleString('pt-BR')}/dia.`;
   mcpEl.appendChild(limits);
   custom.appendChild(mcpEl);
@@ -184,6 +185,7 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
 
   const mcpEx = section('Exemplos com o MCP');
   const intro = document.createElement('p');
+  intro.className = 'profile-section-text';
   intro.textContent = 'Depois de conectar, pergunte. O modelo busca, abre a mensagem e cita data, página e figura do laudo.';
   mcpEx.appendChild(intro);
   for (const prompt of MCP_EXAMPLES) mcpEx.appendChild(codeBlock(prompt, { onCopy, label: 'Copiar pergunta' }));
