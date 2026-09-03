@@ -476,7 +476,7 @@ async function init() {
     });
   }
 
-  const SVG_CODE = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+  const SVG_CODE = `<svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 
   /** The API/MCP page, in the settings drawer's place. Lives at #/api. */
   function openApi() {
@@ -487,7 +487,8 @@ async function init() {
     hideMainAreaWithPlaceholder(SVG_CODE, 'API/MCP');
     activeApiDrawer = showApiDrawer(container, {
       onClose: () => { closeApi(); if (router.getCurrentRoute().route === 'api') router.navigate('home'); },
-      onCopy: (ok) => showToast(mainArea, ok ? 'Copiado' : 'Não foi possível copiar'),
+      // The drawer covers the main area on a phone; the toast goes where the eyes are.
+      onCopy: (ok) => showToast(activeApiDrawer?.element || mainArea, ok ? 'Copiado' : 'Não foi possível copiar'),
     });
   }
 

@@ -1343,6 +1343,10 @@
 }
 
 /* ── API/MCP page ──────────────────────────────────────────────────────────── */
+.api-drawer {
+  position: relative;
+}
+
 .api-hero-icon {
   display: flex;
   align-items: center;
@@ -1356,7 +1360,7 @@
 
 .api-code {
   position: relative;
-  margin: 8px 0 12px;
+  margin: 8px 16px 12px;
   border-radius: 8px;
   background: var(--WDS-warm-gray-75);
 }
@@ -1449,4 +1453,24 @@
 .sidebar-dropdown-icon {
   display: flex;
   color: var(--WDS-content-deemphasized);
+}
+
+/* Inline code in content: the same grey and monospace as the MCP URL box. */
+.inline-code,
+.profile-section code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--WDS-warm-gray-75);
+  font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--WDS-content-default);
+  overflow-wrap: anywhere;
+}
+
+.profile-section a {
+  color: var(--WDS-cobalt-400);
+  text-decoration: none;
+}
+
+.profile-section a:hover {
+  text-decoration: underline;
 }

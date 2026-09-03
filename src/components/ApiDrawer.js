@@ -13,9 +13,10 @@ import { renderProfileSections } from './ProfileSections.js';
 import { API_INTRO, API_SECTIONS, MCP_CLIENTS, MCP_TOOLS, API_CREDITS } from '../lib/api-content.js';
 import { API_ROUTES, API_BASE, SITE_ORIGIN, MCP_URL, MCP_LIMITS } from '../lib/api-routes.js';
 import { copyText } from '../lib/utils.js';
+import { parseLinks } from '../lib/profile-content.js';
 
-export const ICON_CODE = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
-const ICON_CODE_64 = ICON_CODE.replace('width="20" height="20"', 'width="64" height="64"');
+export const ICON_CODE = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+const ICON_CODE_64 = ICON_CODE.replace('width="20" height="20"', 'width="36" height="36"').replace('stroke-width="2.6"', 'stroke-width="3"');
 const ICON_COPY = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 
 /** A block of text with a button that copies it. */
@@ -156,7 +157,8 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     ol.className = 'api-steps';
     for (const step of client.steps) {
       const li = document.createElement('li');
-      li.textContent = step;
+      // Static content through parseLinks — safe innerHTML
+      li.innerHTML = parseLinks(step);
       ol.appendChild(li);
     }
     el.appendChild(ol);
@@ -178,5 +180,5 @@ export function showApiDrawer(container, { onClose, onCopy } = {}) {
     if (sidebar) sidebar.style.display = '';
     if (onClose) onClose();
   }
-  return { destroy };
+  return { destroy, element: drawer };
 }

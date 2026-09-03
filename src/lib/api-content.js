@@ -17,16 +17,16 @@ export const API_SECTIONS = [
   {
     title: 'O que é',
     paragraphs: [
-      { text: `Tudo que este site mostra existe como arquivo: JSON por conversa, por dia e por mês, as chamadas, as pessoas citadas. A API é só um nome estável para esses arquivos — ${SITE_ORIGIN}${API_BASE}/… — servidos direto da CDN, sem servidor no meio. Não tem chave, não tem limite, e o que você baixa é exatamente o que o site lê.` },
+      { text: `Tudo que este site mostra existe como arquivo: JSON por conversa, por dia e por mês, as chamadas, as pessoas citadas. A API é só um nome estável para esses arquivos — {${SITE_ORIGIN}${API_BASE}/…}[${SITE_ORIGIN}/api] — servidos direto da CDN, sem servidor no meio. Não tem chave, não tem limite, e o que você baixa é exatamente o que o site lê.` },
       { text: 'O MCP é a mesma coisa para modelos: um servidor que um ChatGPT, um Claude ou um Cursor conecta e passa a responder sobre as conversas citando data, página e figura do laudo, com link para a mensagem.' },
     ],
   },
   {
     title: 'Uso justo e limites',
     paragraphs: [
-      { text: `A API estática não tem limite — é CDN. O MCP roda numa função e tem cota, para que ninguém consuma o dia do site sozinho: ${MCP_LIMITS.perMinute} chamadas por minuto e ${MCP_LIMITS.perDay} por dia por cliente, e um teto diário para todos. Ao passar, a resposta é 429 com Retry-After e o caminho da API estática, que não fecha.` },
+      { text: `A API estática não tem limite — é CDN. O MCP roda numa função e tem cota, para que ninguém consuma o dia do site sozinho: ${MCP_LIMITS.perMinute} chamadas por minuto e ${MCP_LIMITS.perDay} por dia por cliente, e um teto diário para todos. Ao passar, a resposta é \`429\` com \`Retry-After\` e o caminho da API estática, que não fecha.` },
       { text: 'Trezentas chamadas por dia é bastante: as perguntas dos nossos testes com agentes saíram em 6 a 13 chamadas cada. Se precisa de volume, baixe os arquivos — é para isso que eles existem.' },
-      { text: 'Os arquivos são imutáveis entre builds: cacheie. Se quiser que a gente saiba quem usa, mande um header X-Client com o nome do seu projeto; não é obrigatório e não muda nada.' },
+      { text: 'Os arquivos são imutáveis entre builds: cacheie. Se quiser que a gente saiba quem usa, mande um header `X-Client` com o nome do seu projeto; não é obrigatório e não muda nada.' },
     ],
   },
   {
@@ -44,7 +44,7 @@ export const MCP_CLIENTS = [
     steps: [
       'Configurações → Conectores (ou Apps) → ative o modo desenvolvedor.',
       'Criar → cole a URL do servidor abaixo, sem autenticação.',
-      'Num chat, ative o conector e pergunte. Os menus mudam de nome com o tempo; a URL é o que importa. O servidor expõe search e fetch no formato que o ChatGPT exige.',
+      'Num chat, ative o conector e pergunte. Os menus mudam de nome com o tempo; a URL é o que importa. O servidor expõe `search` e `fetch` no formato que o ChatGPT exige.',
     ],
     code: MCP_URL,
   },
@@ -63,7 +63,7 @@ export const MCP_CLIENTS = [
   },
   {
     name: 'Cursor, Windsurf e outros',
-    steps: ['No arquivo de configuração de MCP do cliente (mcp.json ou equivalente):'],
+    steps: ['No arquivo de configuração de MCP do cliente (`mcp.json` ou equivalente):'],
     code: `{\n  "mcpServers": {\n    "masterwhats": { "url": "${MCP_URL}" }\n  }\n}`,
   },
 ];

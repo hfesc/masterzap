@@ -424,7 +424,7 @@ function apiPage() {
   body.push('<h2>O MCP</h2>', '<ul>', ...MCP_TOOLS.map(([t, w]) => `<li><code>${t}</code> — ${escapeHtml(w)}</li>`), '</ul>');
   body.push(`<p><b>Limites por cliente:</b> ${MCP_LIMITS.perMinute}/min · ${MCP_LIMITS.perDay}/dia. Teto do site: ${MCP_LIMITS.globalPerDay.toLocaleString('pt-BR')}/dia. Ao passar: 429 com Retry-After.</p>`);
   for (const c of MCP_CLIENTS) {
-    body.push(`<h3>Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${escapeHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
+    body.push(`<h3>Como usar no ${escapeHtml(c.name)}</h3>`, '<ol>', ...c.steps.map(s => `<li>${linksToHtml(s)}</li>`), '</ol>', `<pre><code>${escapeHtml(c.code)}</code></pre>`);
   }
   body.push(`<p class="how">${linksToHtml(API_CREDITS)}</p>`);
   const jsonLd = {
