@@ -1616,3 +1616,14 @@
 .api-steps li {
   margin-bottom: 8px;
 }
+
+/* The calls panel is a flex column; the rows above the list must not be
+   squeezed when the list is long (the chip row, with overflow-x, could
+   shrink to a sliver on a short desktop viewport). */
+.calls-header,
+.calls-search,
+.calls-filters,
+.calls-actions,
+.calls-recent {
+  flex-shrink: 0;
+}
