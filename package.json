@@ -8,8 +8,8 @@
     "npm": "10.x"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "python3 scripts/split_data.py && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
+    "dev": "DO_NOT_TRACK=1 vite",
+    "build": "DO_NOT_TRACK=1 python3 scripts/split_data.py && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
     "split-data": "python3 scripts/split_data.py",
     "export": "node scripts/export.mjs",

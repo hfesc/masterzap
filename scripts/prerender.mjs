@@ -183,7 +183,7 @@ function provenanceHtml(entry) {
   const source = sourceOf(entry);
   const out = ['<h2>Proveniência</h2><dl>'];
   out.push(`<dt>Fonte</dt><dd>${escapeHtml(source.label)}</dd>`);
-  if (source.document) out.push(`<dt>Documento</dt><dd>${source.document_url ? `<a href="${escapeHtml(source.document_url)}" rel="noopener">${escapeHtml(source.document)}</a>` : escapeHtml(source.document)}${source.document_pages ? `, ${source.document_pages} páginas` : ''} (no repositório; o site não serve o PDF)</dd>`);
+  if (source.document) out.push(`<dt>Documento</dt><dd>${source.document_url ? `<a href="${escapeHtml(source.document_url)}" rel="noopener noreferrer">${escapeHtml(source.document)}</a>` : escapeHtml(source.document)}${source.document_pages ? `, ${source.document_pages} páginas` : ''} (no repositório; o site não serve o PDF)</dd>`);
   if (source.document_sha256) out.push(`<dt>sha256 do documento</dt><dd><code>${source.document_sha256}</code></dd>`);
   out.push(`<dt>Como chegou ao público</dt><dd>${escapeHtml(source.how)}</dd>`);
   if (entry.saved_as) out.push(`<dt>Contato salvo como</dt><dd>${escapeHtml(entry.saved_as)}</dd>`);
@@ -214,7 +214,7 @@ function profileHtml(profile, who, entry, fromPath) {
 function sourcesHtml(urls) {
   const sources = [...new Set(urls)];
   if (!sources.length) return [];
-  return ['<h2>Fontes</h2><ul>', ...sources.map(u => `<li><a href="${escapeHtml(u)}" rel="noopener">${escapeHtml(u)}</a></li>`), '</ul>'];
+  return ['<h2>Fontes</h2><ul>', ...sources.map(u => `<li><a href="${escapeHtml(u)}" rel="noopener noreferrer">${escapeHtml(u)}</a></li>`), '</ul>'];
 }
 
 function conversationPage(entry, messages, profile, who) {

@@ -216,7 +216,7 @@ export function renderLinks(text, opts = {}) {
   const mode = opts.mode || 'md';
   const esc = mode === 'html' ? escapeHtml : (s) => s;
   const link = (label, href) => (mode === 'md' ? `[${label}](${href})`
-    : mode === 'html' ? `<a href="${escapeHtml(href)}"${href.startsWith('http') ? ' rel="noopener"' : ''}>${escapeHtml(label)}</a>`
+    : mode === 'html' ? `<a href="${escapeHtml(href)}"${href.startsWith('http') ? ' rel="noopener noreferrer"' : ''}>${escapeHtml(label)}</a>`
     : label);
   const cite = (msg) => (mode === 'html' ? ` <small>⟨${escapeHtml(citationOf(msg))}⟩</small>` : ` ⟨${citationOf(msg)}⟩`);
 
