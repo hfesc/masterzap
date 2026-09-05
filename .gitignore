@@ -33,4 +33,5 @@ Thumbs.db
 coverage/
 test-results/
 playwright-report/
+capacity-report.json
 .vercel

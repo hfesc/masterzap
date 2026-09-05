@@ -77,6 +77,16 @@ export function createApp(options = {}) {
   const authRouter = createAuthRouter(options);
   app.use('/auth', authRouter);
 
+  // Middleware de teste exclusivo para medição e benchmarks (bloqueado em produção)
+  if (process.env.NODE_ENV !== 'production' && options.testAuth) {
+    app.use((req, res, next) => {
+      if (req.session) {
+        req.session.user = options.testAuth;
+      }
+      next();
+    });
+  }
+
   // Todo o restante do acervo exige login
   app.use(requireAuth);
 

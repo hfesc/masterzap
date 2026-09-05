@@ -11,6 +11,7 @@
     "dev": "DO_NOT_TRACK=1 vite",
     "start": "node server/index.js",
     "build": "DO_NOT_TRACK=1 node scripts/split_data.mjs && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
+    "heroku-postbuild": "npm run build",
     "preview": "vite preview",
     "split-data": "node scripts/split_data.mjs",
     "export": "node scripts/export.mjs",
