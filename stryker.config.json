@@ -35,9 +35,11 @@
   },
   "thresholds": {
     "high": 80,
-    "low": 60,
-    "break": null
+    "low": 65,
+    "break": 60
   },
+  "incremental": true,
+  "incrementalFile": "reports/mutation/stryker-incremental.json",
   "coverageAnalysis": "perTest",
   "concurrency": 2,
   "timeoutMS": 10000

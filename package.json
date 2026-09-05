@@ -21,6 +21,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:mutation": "stryker run",
+    "test:telemetry": "vitest run tests/unit/no-telemetry.test.js && playwright test tests/e2e/telemetry.test.js --config tests/e2e/playwright.config.js",
     "test:e2e": "playwright test --config tests/e2e/playwright.config.js",
     "verify": "npm run build && npm run test && npm run test:e2e"
   },
