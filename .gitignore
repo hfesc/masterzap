@@ -1,7 +1,16 @@
 node_modules/
 dist/
 .vite/
+.tools/
 *.local
+.env
+.env.*
+!.env.example
+.stryker-tmp/
+reports/
+.cloudflare/
+.auth/
+.secrets/
 
 # Generated data (rebuild with npm run split-data / npm run export)
 public/data/
