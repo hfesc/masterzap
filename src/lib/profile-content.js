@@ -11,7 +11,7 @@
  * no entry render the contact drawer without an investigation section.
  *
  * `action:search:` terms must actually appear in that conversation's search
- * index — see scripts/split_data.py.
+ * index — see scripts/split_data.mjs.
  */
 
 export const VORCARO_PROFILE = {

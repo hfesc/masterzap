@@ -9,9 +9,9 @@
   },
   "scripts": {
     "dev": "DO_NOT_TRACK=1 vite",
-    "build": "DO_NOT_TRACK=1 python3 scripts/split_data.py && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
+    "build": "DO_NOT_TRACK=1 node scripts/split_data.mjs && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "split-data": "python3 scripts/split_data.py",
+    "split-data": "node scripts/split_data.mjs",
     "export": "node scripts/export.mjs",
     "prerender": "node scripts/prerender.mjs",
     "lint": "eslint src scripts tests vite.config.js",

@@ -74,7 +74,7 @@ public/data/          # Dados por data (gitignored, gerado por split-data)
 public/export/        # Export limpo por conversa e completo (gitignored, gerado por export)
 public/assets/        # Assets estáticos (favicon, background, SVGs)
 data/                 # Dados originais (messages.json, index.json)
-scripts/              # Scripts de build (split_data.py)
+scripts/              # Scripts de build (split_data.mjs)
 tests/unit/           # Testes unitários (Vitest)
 tests/e2e/            # Testes E2E (Playwright)
 ```

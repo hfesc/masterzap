@@ -38,7 +38,7 @@ export function loadMessages(entry) {
 /**
  * Where a conversation's text came from, in the terms the reader will need.
  * The report's file, hash and page count come from conversations.json, where
- * split_data.py computed them once.
+ * split_data.mjs computed them once.
  */
 export function sourceOf(entry) {
   if (entry.source?.startsWith('IPJ-A')) {
