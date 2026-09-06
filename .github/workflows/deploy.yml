@@ -12,16 +12,25 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy-to-heroku:
     name: Heroku Deploy & Smoke Test
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.event == 'push') }}
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Checkout code
+      - name: Checkout approved commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
@@ -35,10 +44,12 @@ jobs:
           echo "previous_release=$PREV_RELEASE" >> $GITHUB_OUTPUT
           echo "Captured previous release: v$PREV_RELEASE"
 
-      - name: Push to Heroku Git Remote
+      - name: Push approved commit to Heroku
+        env:
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-          git push heroku ${{ github.sha }}:refs/heads/main --force
+          git push heroku "$DEPLOY_SHA":refs/heads/main
 
       - name: Verify New Release
         id: verify-deploy
