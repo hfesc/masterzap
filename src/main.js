@@ -86,7 +86,7 @@ async function init() {
   };
   const SENDER_NAMES = { 'DV': 'Daniel Vocaro' };
   // Per-conversation media tallies come from conversations.json (built by
-  // scripts/split_data.py); this is only the fallback for older data.
+  // scripts/split_data.mjs); this is only the fallback for older data.
   const MEDIA_COUNTS = { images: 0, videos: 0, documents: 0 };
 
   const readConversations = loadReadConversations();

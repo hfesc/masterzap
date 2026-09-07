@@ -1,0 +1,89 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-to-heroku:
+    name: Heroku Deploy & Smoke Test
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.event == 'push') }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout approved commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Capture Previous Release Version
+        id: pre-deploy
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          PREV_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version // empty' || true)
+          echo "previous_release=$PREV_RELEASE" >> $GITHUB_OUTPUT
+          echo "Captured previous release: v$PREV_RELEASE"
+
+      - name: Push approved commit to Heroku
+        env:
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+          git push heroku "$DEPLOY_SHA":refs/heads/main
+
+      - name: Verify New Release
+        id: verify-deploy
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          NEW_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version')
+          echo "new_release=$NEW_RELEASE" >> $GITHUB_OUTPUT
+          echo "Deployed new release: v$NEW_RELEASE"
+
+      - name: Wait for Dynos to Restart
+        run: sleep 15
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 22.x
+
+      - name: Smoke Test (Healthz, Redirect and Zero Telemetry)
+        id: smoke-test
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          node scripts/deployment-smoke.mjs "$APP_URL"
+
+      - name: Automatic Rollback on Failure
+        if: failure()
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          PREV_RELEASE="${{ steps.pre-deploy.outputs.previous_release }}"
+          if [ -n "$PREV_RELEASE" ] && [ "$PREV_RELEASE" != "null" ]; then
+            echo "Smoke test or deploy failed! Initiating rollback to v$PREV_RELEASE..."
+            heroku rollback v$PREV_RELEASE -a ${{ secrets.HEROKU_APP_NAME }}
+          else
+            echo "No previous release captured. Cannot rollback."
+          fi

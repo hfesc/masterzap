@@ -1,0 +1,11 @@
+# Gitleaks configuration for masterzap
+[allowlist]
+description = "Allowlist for reviewed non-secret test fixtures and public corpus data"
+paths = [
+  '''data/messages\.json''',
+  '''data/ipj-3298613/.*''',
+  '''tests/unit/server-auth\.test\.js''',
+]
+regexes = [
+  '''test-secret-at-least-32-chars-long-abcdef''',
+]

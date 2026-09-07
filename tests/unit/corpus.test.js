@@ -63,7 +63,7 @@ describe('rendering', () => {
   });
 
   it('escapes the text but not the site\'s own links, in html', () => {
-    expect(linksToHtml('a < b {x}[https://e.x/y?a=1&b=2]')).toBe('a &lt; b <a href="https://e.x/y?a=1&amp;b=2" rel="noopener">x</a>');
+    expect(linksToHtml('a < b {x}[https://e.x/y?a=1&b=2]')).toBe('a &lt; b <a href="https://e.x/y?a=1&amp;b=2" rel="noopener noreferrer">x</a>');
   });
 
   it('comes out as plain text when asked', () => {

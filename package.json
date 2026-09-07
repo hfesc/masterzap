@@ -3,28 +3,47 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "python3 scripts/split_data.py && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
+    "dev": "DO_NOT_TRACK=1 vite",
+    "start": "node server/index.js",
+    "build": "DO_NOT_TRACK=1 node scripts/split_data.mjs && node scripts/export.mjs && vite build && node scripts/prerender.mjs",
+    "heroku-postbuild": "npm run build",
     "preview": "vite preview",
-    "split-data": "python3 scripts/split_data.py",
+    "split-data": "node scripts/split_data.mjs",
     "export": "node scripts/export.mjs",
     "prerender": "node scripts/prerender.mjs",
+    "lint": "eslint src scripts server tests vite.config.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:mutation": "stryker run",
+    "test:telemetry": "vitest run tests/unit/no-telemetry.test.js && playwright test tests/e2e/telemetry.test.js --config tests/e2e/playwright.config.js",
     "test:e2e": "playwright test --config tests/e2e/playwright.config.js",
     "verify": "npm run build && npm run test && npm run test:e2e"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.50.0",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
     "@vitest/coverage-v8": "^3.0.0",
+    "eslint": "^10.10.0",
+    "globals": "^17.4.0",
     "jsdom": "^28.1.0",
     "jszip": "^3.10.1",
+    "supertest": "^7.2.2",
     "vite": "^6.2.0",
     "vitest": "^3.0.0"
   },
   "dependencies": {
+    "compression": "^1.8.1",
+    "cookie-session": "^2.1.1",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
     "html2canvas": "^1.4.1"
   }
 }

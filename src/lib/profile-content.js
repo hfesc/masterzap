@@ -11,7 +11,7 @@
  * no entry render the contact drawer without an investigation section.
  *
  * `action:search:` terms must actually appear in that conversation's search
- * index — see scripts/split_data.py.
+ * index — see scripts/split_data.mjs.
  */
 
 export const VORCARO_PROFILE = {
@@ -449,6 +449,6 @@ export function parseLinks(text) {
     if (url.startsWith('action:')) {
       return `<span data-action="${url}" class="profile-action-link">${linkText}</span>`;
     }
-    return `<a href="${url}" target="_blank" rel="noopener">${linkText}</a>`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
   });
 }

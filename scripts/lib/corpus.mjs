@@ -38,7 +38,7 @@ export function loadMessages(entry) {
 /**
  * Where a conversation's text came from, in the terms the reader will need.
  * The report's file, hash and page count come from conversations.json, where
- * split_data.py computed them once.
+ * split_data.mjs computed them once.
  */
 export function sourceOf(entry) {
   if (entry.source?.startsWith('IPJ-A')) {
@@ -216,7 +216,7 @@ export function renderLinks(text, opts = {}) {
   const mode = opts.mode || 'md';
   const esc = mode === 'html' ? escapeHtml : (s) => s;
   const link = (label, href) => (mode === 'md' ? `[${label}](${href})`
-    : mode === 'html' ? `<a href="${escapeHtml(href)}"${href.startsWith('http') ? ' rel="noopener"' : ''}>${escapeHtml(label)}</a>`
+    : mode === 'html' ? `<a href="${escapeHtml(href)}"${href.startsWith('http') ? ' rel="noopener noreferrer"' : ''}>${escapeHtml(label)}</a>`
     : label);
   const cite = (msg) => (mode === 'html' ? ` <small>⟨${escapeHtml(citationOf(msg))}⟩</small>` : ` ⟨${citationOf(msg)}⟩`);
 

@@ -2,7 +2,7 @@
  * Write the clean export: one Markdown and one JSON per conversation, one of
  * each with everything, and a zip of the lot — into public/export/.
  *
- * Runs after split_data.py, because the list of conversations and their ids
+ * Runs after split_data.mjs, because the list of conversations and their ids
  * come from public/data/conversations.json rather than being derived again
  * here. Messages come from the sources in data/, not from the day chunks, so a
  * file holds a whole conversation at once.
