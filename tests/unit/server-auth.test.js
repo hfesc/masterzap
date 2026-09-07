@@ -42,7 +42,7 @@ describe('isEmailAllowed', () => {
 describe('Servidor Express e Autenticação Google', () => {
   let app;
   let mockExchangeTokens;
-  let mockFetchUserInfo;
+  let mockVerifyIdToken;
 
   beforeEach(() => {
     mockExchangeTokens = vi.fn().mockResolvedValue({
@@ -50,7 +50,7 @@ describe('Servidor Express e Autenticação Google', () => {
       id_token: 'mock-id-token',
     });
 
-    mockFetchUserInfo = vi.fn().mockResolvedValue({
+    mockVerifyIdToken = vi.fn().mockResolvedValue({
       email: 'user@hfesc.dev',
       email_verified: true,
       name: 'Usuário Teste',
@@ -66,7 +66,7 @@ describe('Servidor Express e Autenticação Google', () => {
       allowedEmails: [],
       allowedDomains: [],
       exchangeCodeForTokens: mockExchangeTokens,
-      fetchUserInfo: mockFetchUserInfo,
+      verifyIdToken: mockVerifyIdToken,
     });
   });
 
@@ -128,7 +128,7 @@ describe('Servidor Express e Autenticação Google', () => {
     const url = new URL(location);
     const state = url.searchParams.get('state');
 
-    mockFetchUserInfo.mockResolvedValueOnce({
+    mockVerifyIdToken.mockResolvedValueOnce({
       email: 'hacker@unverified.org',
       email_verified: false,
       name: 'Unverified User',
@@ -149,14 +149,14 @@ describe('Servidor Express e Autenticação Google', () => {
       allowedEmails: ['authorized@hfesc.dev'],
       allowedDomains: [],
       exchangeCodeForTokens: mockExchangeTokens,
-      fetchUserInfo: mockFetchUserInfo,
+      verifyIdToken: mockVerifyIdToken,
     });
 
     const agent = request.agent(restrictedApp);
     const googleRes = await agent.get('/auth/google');
     const state = new URL(googleRes.headers.location).searchParams.get('state');
 
-    mockFetchUserInfo.mockResolvedValueOnce({
+    mockVerifyIdToken.mockResolvedValueOnce({
       email: 'unauthorized@gmail.com',
       email_verified: true,
       name: 'Outro Usuário',
@@ -171,26 +171,43 @@ describe('Servidor Express e Autenticação Google', () => {
   it('GET /auth/google/callback autentica com sucesso, armazena sessão e redireciona para a home', async () => {
     const agent = request.agent(app);
     const googleRes = await agent.get('/auth/google');
-    const state = new URL(googleRes.headers.location).searchParams.get('state');
+    const authUrl = new URL(googleRes.headers.location);
+    const state = authUrl.searchParams.get('state');
+    const nonce = authUrl.searchParams.get('nonce');
 
     const callbackRes = await agent.get(`/auth/google/callback?code=valid-code&state=${state}`);
     expect(callbackRes.status).toBe(302);
     expect(callbackRes.headers.location).toBe('/');
+    expect(mockVerifyIdToken).toHaveBeenCalledWith('mock-id-token', nonce);
 
-    // Agora o endpoint /auth/me deve retornar os dados do usuário autenticado
+    const cookies = callbackRes.headers['set-cookie'].join('');
+    expect(cookies).not.toContain('user%40hfesc.dev');
+
     const meRes = await agent.get('/auth/me');
     expect(meRes.status).toBe(200);
-    expect(meRes.body.authenticated).toBe(true);
-    expect(meRes.body.user.email).toBe('user@hfesc.dev');
+    expect(meRes.body).toEqual({ authenticated: true });
   });
 
-  it('GET /auth/logout encerra a sessão e redireciona para /auth/login', async () => {
+  it('GET /auth/logout não encerra a sessão', async () => {
+    const res = await request(app).get('/auth/logout');
+    expect(res.status).toBe(405);
+    expect(res.headers.allow).toBe('POST');
+  });
+
+  it('POST /auth/logout rejeita origem externa', async () => {
+    const res = await request(app)
+      .post('/auth/logout')
+      .set('Origin', 'https://evil.example');
+    expect(res.status).toBe(403);
+  });
+
+  it('POST /auth/logout encerra a sessão e redireciona para /auth/login', async () => {
     const agent = request.agent(app);
     const googleRes = await agent.get('/auth/google');
     const state = new URL(googleRes.headers.location).searchParams.get('state');
     await agent.get(`/auth/google/callback?code=valid-code&state=${state}`);
 
-    const logoutRes = await agent.get('/auth/logout');
+    const logoutRes = await agent.post('/auth/logout');
     expect(logoutRes.status).toBe(302);
     expect(logoutRes.headers.location).toBe('/auth/login');
 

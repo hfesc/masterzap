@@ -11,6 +11,50 @@
 import express from 'express';
 import crypto from 'node:crypto';
 
+const GOOGLE_ISSUERS = new Set(['https://accounts.google.com', 'accounts.google.com']);
+
+function decodeBase64UrlJson(value) {
+  return JSON.parse(Buffer.from(value, 'base64url').toString('utf8'));
+}
+
+async function verifyGoogleIdToken(idToken, expectedNonce, clientId) {
+  if (!idToken) throw new Error('Google não retornou id_token');
+
+  const parts = idToken.split('.');
+  if (parts.length !== 3) throw new Error('Google retornou id_token inválido');
+
+  const header = decodeBase64UrlJson(parts[0]);
+  const payload = decodeBase64UrlJson(parts[1]);
+  if (header.alg !== 'RS256' || !header.kid) throw new Error('Algoritmo do id_token inválido');
+
+  const response = await fetch('https://www.googleapis.com/oauth2/v3/certs');
+  if (!response.ok) throw new Error(`Google certificates fetch falhou com status ${response.status}`);
+  const { keys = [] } = await response.json();
+  const jwk = keys.find(key => key.kid === header.kid && key.alg === 'RS256' && key.use === 'sig');
+  if (!jwk) throw new Error('Chave de assinatura do Google não encontrada');
+
+  const publicKey = crypto.createPublicKey({ key: jwk, format: 'jwk' });
+  const validSignature = crypto.verify(
+    'RSA-SHA256',
+    Buffer.from(`${parts[0]}.${parts[1]}`),
+    publicKey,
+    Buffer.from(parts[2], 'base64url'),
+  );
+
+  const now = Math.floor(Date.now() / 1000);
+  const audience = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  if (!validSignature ||
+      !GOOGLE_ISSUERS.has(payload.iss) ||
+      !audience.includes(clientId) ||
+      payload.exp <= now ||
+      payload.iat > now + 60 ||
+      payload.nonce !== expectedNonce) {
+    throw new Error('Claims do id_token inválidas');
+  }
+
+  return payload;
+}
+
 /**
  * Verifica se um e-mail é permitido segundo as listas de restrição.
  * Se nenhuma lista estiver configurada, permite qualquer e-mail válido.
@@ -251,19 +295,8 @@ export function createAuthRouter(options = {}) {
     return response.json();
   });
 
-  const fetchUserInfo = options.fetchUserInfo || (async (tokens) => {
-    const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
-      headers: {
-        Authorization: `Bearer ${tokens.access_token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google userinfo fetch falhou com status ${response.status}`);
-    }
-
-    return response.json();
-  });
+  const verifyIdToken = options.verifyIdToken || ((idToken, nonce) =>
+    verifyGoogleIdToken(idToken, nonce, clientId));
 
   // Tela de login
   router.get('/login', (req, res) => {
@@ -323,7 +356,7 @@ export function createAuthRouter(options = {}) {
       const redirectUri = configuredRedirectUri || `${protocol}://${host}/auth/google/callback`;
 
       const tokens = await exchangeCodeForTokens(code, redirectUri);
-      const userInfo = await fetchUserInfo(tokens);
+      const userInfo = await verifyIdToken(tokens.id_token, req.session.oauth.nonce);
 
       // Verificação estrita de e-mail verificado
       if (!userInfo.email_verified) {
@@ -335,11 +368,7 @@ export function createAuthRouter(options = {}) {
         return res.redirect('/auth/login?error=forbidden');
       }
 
-      // Sucesso na autenticação
       req.session.user = {
-        email: userInfo.email,
-        name: userInfo.name || userInfo.email,
-        picture: userInfo.picture || null,
         sub: userInfo.sub,
       };
 
@@ -354,28 +383,31 @@ export function createAuthRouter(options = {}) {
     }
   });
 
-  // Encerramento da sessão
   router.get('/logout', (req, res) => {
-    req.session = null;
-    res.redirect('/auth/login');
+    res.setHeader('Allow', 'POST');
+    res.status(405).send('Method Not Allowed');
   });
 
   router.post('/logout', (req, res) => {
+    const origin = req.get('origin');
+    if (origin) {
+      try {
+        const configuredOrigin = new URL(options.baseUrl || process.env.BASE_URL || `${req.protocol}://${req.get('host')}`).origin;
+        if (new URL(origin).origin !== configuredOrigin) return res.status(403).send('Forbidden');
+      } catch {
+        return res.status(403).send('Forbidden');
+      }
+    }
+
     req.session = null;
     res.redirect('/auth/login');
   });
 
-  // Endpoint de introspecção da sessão atual
   router.get('/me', (req, res) => {
-    if (req.session?.user) {
-      return res.json({
-        authenticated: true,
-        user: req.session.user,
-      });
+    if (req.session?.user?.sub) {
+      return res.json({ authenticated: true });
     }
-    return res.status(401).json({
-      authenticated: false,
-    });
+    return res.status(401).json({ authenticated: false });
   });
 
   return router;
@@ -385,7 +417,7 @@ export function createAuthRouter(options = {}) {
  * Middleware para exigir autenticação em rotas protegidas.
  */
 export function requireAuth(req, res, next) {
-  if (req.session?.user?.email) {
+  if (req.session?.user?.sub) {
     return next();
   }
 
