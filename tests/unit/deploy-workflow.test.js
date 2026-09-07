@@ -18,4 +18,11 @@ describe('Heroku deploy workflow', () => {
     expect(workflow).not.toContain('HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}');
     expect(workflow).not.toContain('https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com');
   });
+
+  it('proves the approved commit is active even when the Git push is a no-op', () => {
+    expect(workflow).toContain('EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}');
+    expect(workflow).toContain("ACTUAL_COMMIT=$(printf '%s' \"$RELEASES\" | jq -r '.[0].description // empty' | grep -oE '[0-9a-f]{8,40}' | tail -1)");
+    expect(workflow).toContain('if [[ "$EXPECTED_COMMIT" != "$ACTUAL_COMMIT"* ]]; then');
+    expect(workflow).not.toContain('Deployed new release: v$NEW_RELEASE');
+  });
 });
