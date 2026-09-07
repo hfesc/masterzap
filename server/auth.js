@@ -244,7 +244,7 @@ function renderLoginPage(error) {
     </a>
 
     <div class="footer-note">
-      Conexão direta com Google OAuth 2.0.<br>Nenhum dado é compartilhado com terceiros.
+      Autenticação federada via Google OAuth 2.0.<br>Tráfego restrito à infraestrutura de hospedagem e borda, sem telemetria ou rastreadores de terceiros.
     </div>
   </div>
 </body>

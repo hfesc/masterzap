@@ -91,4 +91,23 @@ describe('Zero Telemetry & Privacy Guard', () => {
       expect(fetchMatch).toBeNull();
     }
   });
+
+  it('ensures Express server emits no forbidden telemetry headers (nel, report-to, reporting-endpoints)', async () => {
+    const { createApp } = await import('../../server/index.js');
+    const request = (await import('supertest')).default;
+    const app = createApp({
+      sessionSecret: 'test-secret-at-least-32-chars-long-abcdef',
+    });
+
+    const forbiddenHeaders = ['nel', 'report-to', 'reporting-endpoints'];
+    const res = await request(app).get('/healthz');
+    for (const header of forbiddenHeaders) {
+      expect(res.headers[header]).toBeUndefined();
+    }
+
+    const loginRes = await request(app).get('/auth/login');
+    for (const header of forbiddenHeaders) {
+      expect(loginRes.headers[header]).toBeUndefined();
+    }
+  });
 });

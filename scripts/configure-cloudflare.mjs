@@ -96,6 +96,57 @@ export async function upsertDnsRecord(token, zoneId, { name = RECORD_NAME, targe
   }
 }
 
+export const TELEMETRY_HEADERS_RULE_DESC = 'MasterZap: Strip downstream Heroku routing telemetry headers (nel, report-to, reporting-endpoints)';
+
+export function createHeaderRemovalRule(hostname = RECORD_NAME) {
+  return {
+    action: 'rewrite',
+    action_parameters: {
+      headers: {
+        'nel': { operation: 'remove' },
+        'report-to': { operation: 'remove' },
+        'reporting-endpoints': { operation: 'remove' },
+      },
+    },
+    expression: `(http.host eq "${hostname}")`,
+    description: TELEMETRY_HEADERS_RULE_DESC,
+    enabled: true,
+  };
+}
+
+export async function getResponseHeaderRuleset(token, zoneId) {
+  try {
+    return await cfFetch(`/zones/${zoneId}/rulesets/phases/http_response_headers_transform/entrypoint`, token);
+  } catch (err) {
+    if (err.status === 404 || err.cfErrors?.some(e => e.code === 10007)) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function configureResponseHeaderTransforms(token, zoneId, { hostname = RECORD_NAME } = {}) {
+  const existingRuleset = await getResponseHeaderRuleset(token, zoneId);
+  const newRule = createHeaderRemovalRule(hostname);
+
+  let updatedRules = [];
+  if (existingRuleset && Array.isArray(existingRuleset.rules)) {
+    updatedRules = existingRuleset.rules
+      .filter(rule => rule.description !== TELEMETRY_HEADERS_RULE_DESC)
+      .concat(newRule);
+  } else {
+    updatedRules = [newRule];
+  }
+
+  console.log(`[Cloudflare] Configurando regras de transformação de headers de resposta (${updatedRules.length} regra(s))...`);
+  return await cfFetch(`/zones/${zoneId}/rulesets/phases/http_response_headers_transform/entrypoint`, token, {
+    method: 'PUT',
+    body: JSON.stringify({
+      rules: updatedRules,
+    }),
+  });
+}
+
 export async function configureSslTls(token, zoneId) {
   console.log('[Cloudflare] Verificando e configurando SSL/TLS para strict...');
   const sslSetting = await cfFetch(`/zones/${zoneId}/settings/ssl`, token, {
@@ -173,6 +224,9 @@ async function main() {
 
   const settingsResult = await configureSslTls(token, zoneId);
   console.log('[Cloudflare] Configurações de segurança aplicadas:', settingsResult);
+
+  const rulesetResult = await configureResponseHeaderTransforms(token, zoneId, { hostname: RECORD_NAME });
+  console.log('[Cloudflare] Regras de remoção de telemetria aplicadas no edge:', rulesetResult.id || 'ok');
 }
 
 if (process.argv[1] === new URL(import.meta.url).pathname) {

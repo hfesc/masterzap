@@ -86,3 +86,27 @@ Base Commit: `f3303765a225de432b0004179fd256a933784ac5`
    - Confirm selection between Eco ($5/mo) or Basic ($7/mo).
 3. **Google OAuth Project Approval:**
    - Confirm creating project `masterzap-hfesc` under `hfelipe@gmail.com` during the OAuth phase.
+
+---
+
+## 5. Deployment Verification & Edge Telemetry Suppression
+
+### Deployment Smoke Verification Tooling (`scripts/deployment-smoke.mjs`)
+- **Script:** `scripts/deployment-smoke.mjs`
+- **Purpose:** Standalone verification executed in `.github/workflows/deploy.yml` post-deployment and locally before release sign-off.
+- **Verification Criteria:**
+  1. `/healthz` responds with HTTP 200 and payload `{"status":"ok", ...}`.
+  2. Unauthenticated root (`/`) redirect chain resolves to Google OAuth authorization endpoint (`accounts.google.com`) with zero 5xx server errors.
+  3. Absolute zero forbidden edge telemetry headers (`nel`, `report-to`, `reporting-endpoints`) across all responses.
+
+### Cloudflare Edge Ruleset Engine (`http_response_headers_transform`)
+- **Phase:** `http_response_headers_transform`
+- **Target Zone:** `hfesc.dev`
+- **Hostname Filter:** `http.host eq "masterzap.hfesc.dev"`
+- **Action:** Modify HTTP response headers before returning to client browser.
+- **Headers Removed:**
+  - `nel` (Network Error Logging injected by hosting router)
+  - `report-to` (Reporting API endpoint groups)
+  - `reporting-endpoints` (Modern Reporting API header)
+- **Rationale:** Ensures edge routers cannot introduce browser telemetry headers, preserving strict zero-telemetry guarantees.
+

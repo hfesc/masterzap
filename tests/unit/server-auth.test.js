@@ -92,6 +92,8 @@ describe('Servidor Express e Autenticação Google', () => {
     expect(res.text).toContain('/auth/google');
     expect(res.text).toContain('Entrar com Google');
     expect(res.text).toContain('content="no-referrer"');
+    expect(res.text).toContain('Autenticação federada via Google OAuth 2.0');
+    expect(res.text).not.toContain('Nenhum dado é compartilhado com terceiros');
   });
 
   it('GET /auth/login exibe aviso se houver erro nos query params', async () => {

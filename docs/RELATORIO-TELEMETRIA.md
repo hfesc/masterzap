@@ -26,6 +26,7 @@ Status: Concluído
 | 13 | `src/`, `index.html` | RUM / Rastreamento de Erros (Sentry, Datadog, LogRocket, Bugsnag, GA) | Rastreamento de sessões de usuário, erros e telemetria de produção | Não encontrado | **Baixo** | **Manter**: auditado e confirmado ausente |
 | 14 | `vercel.json:30-58` | Content Security Policy (CSP) Ausente | Falta de restrição estrita de origens de script, estilo, imagem e conexão | Navegador vulnerável a carregar recursos externos caso haja injeção | **Médio** | **Remover risco**: implementar política estrita no servidor Express via Helmet (`default-src 'self'`, `connect-src 'self'`, etc.) |
 | 15 | Ambiente / Scripts | Telemetria de Ferramentas de Build | Dados de compilação/uso em CLI de ferramentas terceiras | Não detectado, mas deve ser garantido preventivamente | **Baixo** | **Prevenção**: injetar `DO_NOT_TRACK=1` nas variáveis de ambiente do build, CI e runtime |
+| 16 | Borda / Roteador HTTP | Cabeçalhos de Telemetria de Borda (NEL / Reporting API) | Relatórios de falhas e telemetria de rede emitidos pelo navegador | Endpoints de roteador ou infraestrutura (`nel`, `report-to`, `reporting-endpoints`) | **Médio** | **Remover na borda**: suprimir cabeçalhos via Cloudflare Ruleset Engine (`http_response_headers_transform`) e validar continuamente no smoke test e testes unitários |
 
 ---
 
@@ -103,6 +104,14 @@ Status: Concluído
 - **Saída:** Cabeçalho `Referrer-Policy: strict-origin-when-cross-origin` e redirecionamento de `/data/source/(.*)` para `raw.githubusercontent.com`.
 - **Conclusão:** Ausência de `Content-Security-Policy`. Redirecionamento para GitHub deve ser descontinuado no servidor final.
 
+### 2.9. Verificação e Supressão de Cabeçalhos de Telemetria de Borda (NEL / Reporting API)
+- **Comandos:**
+  - `npm run test -- tests/unit/no-telemetry.test.js`
+  - `npm run test -- tests/unit/deployment-smoke.test.js`
+  - `node scripts/deployment-smoke.mjs "$APP_URL"`
+- **Saída:** Nenhuma presença dos cabeçalhos `nel`, `report-to` ou `reporting-endpoints` no servidor Express nem nas respostas inspecionadas durante os smoke tests.
+- **Conclusão:** No Cloudflare, a regra do Ruleset Engine `http_response_headers_transform` remove proativamente esses cabeçalhos das respostas encaminhadas da infraestrutura de hospedagem antes de alcançarem o navegador. A ausência é continuamente assegurada na suíte unitária, nos testes E2E e no pipeline de deploy.
+
 ---
 
 ## 3. Plano de Remediação para a Fase 2
@@ -121,3 +130,7 @@ Status: Concluído
 5. **Automação de Teste de Guarda (Zero Telemetry Guard):**
    - Criar `tests/unit/no-telemetry.test.js` para garantir que `index.html`, arquivos de script e dist não contenham referências a domínios externos de fontes, analytics ou scripts sem `noreferrer`.
    - Criar teste Playwright (`tests/e2e/telemetry.spec.js`) com `page.on('request')` interceptando qualquer tentativa de requisição de rede para fora de `localhost`/origem local.
+6. **Supressão de Cabeçalhos de Telemetria de Borda e Smoke Test:**
+   - Implementar supressão de `nel`, `report-to` e `reporting-endpoints` via Cloudflare Ruleset Engine (`http_response_headers_transform`).
+   - Validar nos testes unitários (`tests/unit/no-telemetry.test.js`) que o Express não injeta headers de relatório.
+   - Executar validação contínua em produção via `scripts/deployment-smoke.mjs` a cada release.

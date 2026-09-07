@@ -48,6 +48,17 @@ O domínio `masterzap.hfesc.dev` é gerenciado no Cloudflare e encaminhado para 
    - **Opportunistic Encryption:** `Enabled`
    - **TLS 1.3:** `Enabled`
 
+### 2.1. Supressão de Cabeçalhos de Telemetria de Borda (Ruleset Engine)
+Para evitar que roteadores intermediários e proxies injetem cabeçalhos de telemetria nos navegadores clientes, o Cloudflare Ruleset Engine é configurado na fase de resposta HTTP:
+
+- **Fase:** `http_response_headers_transform`
+- **Filtro:** `(http.host eq "masterzap.hfesc.dev")`
+- **Cabeçalhos Removidos:**
+  - `nel` (Network Error Logging)
+  - `report-to` (Reporting API v0)
+  - `reporting-endpoints` (Reporting API v1)
+- **Garantia:** Respostas de borda chegam ao navegador sem qualquer instrução de telemetria ou reporte de falhas para servidores de rede.
+
 ---
 
 ## 3. Autenticação Google OAuth 2.0 (GCP Console)
@@ -140,18 +151,21 @@ Disparado a cada `push` nas branches `main` e `chore/harden-and-heroku` e em `pu
 
 ### 6.2. Pipeline de Deploy (`.github/workflows/deploy.yml`)
 Disparado automaticamente quando o workflow `CI` é concluído com sucesso na branch `main`:
-1. Instala a CLI do Heroku e autentica com `HEROKU_API_KEY`.
-2. Captura a versão atual da release (`PREV_RELEASE`).
-3. Envia o código aprovado via `git push heroku $GITHUB_SHA:refs/heads/main`.
-4. Aguarda o provisionamento dos dynos (15s).
-5. **Smoke Test:**
+1. Faz checkout do commit exato aprovado no CI (`github.event.workflow_run.head_sha || github.sha`).
+2. Instala a CLI do Heroku e autentica com `HEROKU_API_KEY`.
+3. Captura a versão anterior da release (`PREV_RELEASE`) via `heroku releases --json`.
+4. Envia o commit aprovado para o Git do Heroku (`git push heroku "$DEPLOY_SHA":refs/heads/main`).
+5. Valida a criação da nova release no Heroku e aguarda o provisionamento dos dynos (15s).
+6. **Smoke Test (`scripts/deployment-smoke.mjs`):**
    - Efetua requisição a `https://masterzap.hfesc.dev/healthz`, validando HTTP 200 e payload `{"status":"ok"}`.
-   - Efetua requisição à raiz `/`, validando o redirecionamento 302 para o fluxo do Google OAuth.
-6. **Rollback Automático:**
-   - Em caso de falha no build Heroku ou no smoke test, o workflow dispara automaticamente:
+   - Efetua requisição à raiz `/`, validando o redirecionamento 302 para `/auth/login` e início do fluxo do Google OAuth (`accounts.google.com`) sem erros 5xx.
+   - Valida em todas as respostas de borda a ausência estrita de cabeçalhos de telemetria (`nel`, `report-to`, `reporting-endpoints`).
+7. **Rollback Automático em Caso de Falha:**
+   - Em caso de falha no build/deploy do Heroku ou no smoke test, a etapa `failure()` reverte imediatamente para a release anterior capturada:
      ```bash
      heroku rollback v$PREV_RELEASE -a masterzap-hfesc
      ```
+   - O job falha, alertando os mantenedores enquanto mantém o ambiente de produção na última versão estável.
 
 ---
 

@@ -49,4 +49,31 @@ test.describe('Zero Telemetry E2E Guard', () => {
     expect(externalResources.links).toEqual([]);
     expect(externalResources.scripts).toEqual([]);
   });
+
+  test('no telemetry or reporting headers are present in any HTTP response', async ({ page }) => {
+    const forbiddenHeaders = ['nel', 'report-to', 'reporting-endpoints'];
+    const telemetryHeaderViolations = [];
+
+    page.on('response', response => {
+      const headers = response.headers();
+      for (const forbidden of forbiddenHeaders) {
+        if (headers[forbidden]) {
+          telemetryHeaderViolations.push({
+            url: response.url(),
+            status: response.status(),
+            header: forbidden,
+            value: headers[forbidden],
+          });
+        }
+      }
+    });
+
+    await page.goto('/');
+    await expect(page.locator('.conversation-item').first()).toBeVisible();
+
+    await page.locator('.conversation-item[data-id="martha-graeff"]').click();
+    await expect(page.locator('.chat-header-name')).toBeVisible();
+
+    expect(telemetryHeaderViolations).toEqual([]);
+  });
 });
