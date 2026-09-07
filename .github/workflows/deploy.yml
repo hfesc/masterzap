@@ -69,14 +69,21 @@ jobs:
           git remote add heroku "https://heroku:${HEROKU_TOKEN}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git"
           git push heroku "$DEPLOY_SHA":refs/heads/main
 
-      - name: Verify New Release
+      - name: Verify Approved Commit Is Active
         id: verify-deploy
         env:
+          EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
           HEROKU_API_KEY: ${{ steps.heroku-credential.outputs.token }}
         run: |
-          NEW_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version')
+          RELEASES=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json)
+          NEW_RELEASE=$(printf '%s' "$RELEASES" | jq -r '.[0].version')
+          ACTUAL_COMMIT=$(printf '%s' "$RELEASES" | jq -r '.[0].description // empty' | grep -oE '[0-9a-f]{8,40}' | tail -1)
+          if [[ "$EXPECTED_COMMIT" != "$ACTUAL_COMMIT"* ]]; then
+            echo "Active Heroku release v$NEW_RELEASE does not contain the approved commit." >&2
+            exit 1
+          fi
           echo "new_release=$NEW_RELEASE" >> "$GITHUB_OUTPUT"
-          echo "Deployed new release: v$NEW_RELEASE"
+          echo "Verified approved commit in active release v$NEW_RELEASE"
 
       - name: Wait for Dynos to Restart
         run: sleep 15
