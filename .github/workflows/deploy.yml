@@ -35,29 +35,47 @@ jobs:
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
+      - name: Normalize Heroku credential
+        id: heroku-credential
+        env:
+          HEROKU_CREDENTIAL: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          if HEROKU_TOKEN=$(printf '%s' "$HEROKU_CREDENTIAL" | jq -er '.access_token // .token // empty' 2>/dev/null); then
+            :
+          else
+            HEROKU_TOKEN="$HEROKU_CREDENTIAL"
+          fi
+          if [ -z "$HEROKU_TOKEN" ] || printf '%s' "$HEROKU_TOKEN" | grep -q '[[:space:]]'; then
+            echo "HEROKU_API_KEY must be a bare token or Heroku authorization JSON." >&2
+            exit 1
+          fi
+          echo "::add-mask::$HEROKU_TOKEN"
+          echo "token=$HEROKU_TOKEN" >> "$GITHUB_OUTPUT"
+
       - name: Capture Previous Release Version
         id: pre-deploy
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_API_KEY: ${{ steps.heroku-credential.outputs.token }}
         run: |
-          PREV_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version // empty' || true)
-          echo "previous_release=$PREV_RELEASE" >> $GITHUB_OUTPUT
+          PREV_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version // empty')
+          echo "previous_release=$PREV_RELEASE" >> "$GITHUB_OUTPUT"
           echo "Captured previous release: v$PREV_RELEASE"
 
       - name: Push approved commit to Heroku
         env:
           DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          HEROKU_TOKEN: ${{ steps.heroku-credential.outputs.token }}
         run: |
-          git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+          git remote add heroku "https://heroku:${HEROKU_TOKEN}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git"
           git push heroku "$DEPLOY_SHA":refs/heads/main
 
       - name: Verify New Release
         id: verify-deploy
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_API_KEY: ${{ steps.heroku-credential.outputs.token }}
         run: |
           NEW_RELEASE=$(heroku releases -a ${{ secrets.HEROKU_APP_NAME }} --json | jq -r '.[0].version')
-          echo "new_release=$NEW_RELEASE" >> $GITHUB_OUTPUT
+          echo "new_release=$NEW_RELEASE" >> "$GITHUB_OUTPUT"
           echo "Deployed new release: v$NEW_RELEASE"
 
       - name: Wait for Dynos to Restart
@@ -78,7 +96,7 @@ jobs:
       - name: Automatic Rollback on Failure
         if: failure()
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_API_KEY: ${{ steps.heroku-credential.outputs.token }}
         run: |
           PREV_RELEASE="${{ steps.pre-deploy.outputs.previous_release }}"
           if [ -n "$PREV_RELEASE" ] && [ "$PREV_RELEASE" != "null" ]; then
